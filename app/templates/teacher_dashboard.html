@@ -1,0 +1,531 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard | SchoolPortal</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #111c3a;
+            --blue: #4568f5;
+            --muted: #7b8499;
+            --canvas: #f5f7fc;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--canvas);
+            color: #202b45;
+            font-family: Inter, "Segoe UI", sans-serif;
+        }
+
+        .sidebar {
+            position: fixed;
+            inset: 0 auto 0 0;
+            width: 258px;
+            padding: 28px 18px;
+            background: var(--navy);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 10px 34px;
+            color: white;
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: 750;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #6586ff, #7b55ed);
+            font-size: 21px;
+        }
+
+        .nav-label {
+            margin: 0 12px 12px;
+            color: #8390b0;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .side-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 12px 14px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            color: #b7c1d8;
+            text-decoration: none;
+            font-size: 13px;
+            transition: .2s ease;
+        }
+
+        .side-link i { font-size: 17px; }
+
+        .side-link:hover,
+        .side-link.active {
+            color: white;
+            background: linear-gradient(100deg, #405fe8, #554ce0);
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 18px;
+            border-top: 1px solid #293653;
+        }
+
+        .main {
+            margin-left: 258px;
+            padding: 28px 36px 40px;
+            max-width: 1700px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .eyebrow {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .top-title {
+            font-size: 22px;
+            font-weight: 750;
+            margin: 3px 0 0;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .avatar {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            color: #4059d8;
+            background: #e6ebff;
+            font-size: 18px;
+        }
+
+        .welcome {
+            padding: 30px 32px;
+            border-radius: 20px;
+            color: white;
+            background:
+                radial-gradient(circle at 90% 20%, #6978ff 0, transparent 30%),
+                linear-gradient(115deg, #273e9c, #5149d8 65%, #6b5bea);
+            box-shadow: 0 12px 30px #4559c526;
+        }
+
+        .welcome h1 {
+            font-size: clamp(23px, 3vw, 31px);
+            font-weight: 800;
+            margin: 0 0 10px;
+        }
+
+        .welcome p {
+            color: #e1e6ff;
+            font-size: 13px;
+            margin-bottom: 22px;
+        }
+
+        .date-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 13px;
+            border-radius: 9px;
+            background: #ffffff1c;
+            font-size: 12px;
+        }
+
+        .section-heading {
+            font-size: 17px;
+            font-weight: 750;
+            margin: 30px 0 17px;
+        }
+
+        .stat-card {
+            height: 100%;
+            padding: 22px;
+            border: 1px solid #edf0f7;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 5px 18px #1c2c4a06;
+            transition: .2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px #1c2c4a0c;
+        }
+
+        .stat-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 21px;
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            font-size: 20px;
+        }
+
+        .icon-blue { color: #4568f5; background: #edf0ff; }
+        .icon-green { color: #149c79; background: #e3f8f0; }
+        .icon-orange { color: #d88725; background: #fff2df; }
+        .icon-purple { color: #8757d9; background: #f1eaff; }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-size: 27px;
+            font-weight: 800;
+            letter-spacing: -.7px;
+        }
+
+        .stat-note {
+            margin-top: 9px;
+            color: #7b8499;
+            font-size: 11px;
+        }
+
+        .module-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 22px;
+            height: 100%;
+            background: white;
+            border: 1px solid #edf0f7;
+            border-radius: 16px;
+            text-decoration: none;
+            color: inherit;
+            transition: .2s ease;
+        }
+
+        .module-card:hover {
+            border-color: #cbd4ff;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px #293b700b;
+            color: inherit;
+        }
+
+        .module-icon {
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            font-size: 21px;
+        }
+
+        .module-card h3 {
+            font-size: 14px;
+            font-weight: 750;
+            margin: 2px 0 8px;
+        }
+
+        .module-card p {
+            font-size: 12px;
+            line-height: 1.7;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .module-arrow {
+            margin-left: auto;
+            color: #a5aec1;
+        }
+
+        .notice {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 18px;
+            background: white;
+            border: 1px solid #edf0f7;
+            border-radius: 15px;
+        }
+
+        .notice-icon {
+            width: 42px;
+            height: 42px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            color: #4568f5;
+            background: #edf0ff;
+            font-size: 19px;
+        }
+
+        .footer {
+            margin-top: 34px;
+            padding-top: 20px;
+            border-top: 1px solid #e7eaf2;
+            color: #929bb0;
+            font-size: 11px;
+        }
+
+        @media (max-width: 1000px) {
+            .sidebar { width: 220px; }
+            .main { margin-left: 220px; padding: 24px; }
+        }
+
+        @media (max-width: 767px) {
+            .sidebar {
+                position: static;
+                width: 100%;
+                padding: 14px 18px;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .brand { padding: 0; font-size: 17px; }
+            .brand-icon { width: 36px; height: 36px; }
+            .nav-label, .sidebar nav, .sidebar-bottom { display: none; }
+
+            .main {
+                margin-left: 0;
+                padding: 23px 16px 30px;
+            }
+
+            .topbar { margin-bottom: 22px; }
+            .top-title { font-size: 19px; }
+            .welcome { padding: 25px 22px; }
+            .stat-card { padding: 17px; }
+            .stat-number { font-size: 23px; }
+        }
+    </style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+    <a class="brand" href="{{ url_for('main.home') }}">
+        <span class="brand-icon"><i class="bi bi-mortarboard-fill"></i></span>
+        <span>SchoolPortal</span>
+    </a>
+
+    <div class="nav-label">Teaching Workspace</div>
+    <nav>
+        <a class="side-link active" href="{{ url_for('main.teacher_dashboard') }}">
+            <i class="bi bi-grid-1x2-fill"></i> Overview
+        </a>
+        <a class="side-link" href="{{ url_for('main.teacher_classes') }}">
+            <i class="bi bi-building"></i> My Classes
+        </a>
+        <a class="side-link" href="{{ url_for('main.teacher_subjects') }}">
+            <i class="bi bi-journal-bookmark"></i> My Subjects
+        </a>
+        <a class="side-link" href="{{ url_for('main.teacher_attendance') }}">
+            <i class="bi bi-calendar2-check"></i> Attendance
+        </a>
+        <a class="side-link" href="{{ url_for('main.teacher_results') }}">
+            <i class="bi bi-clipboard-data"></i> Marks & Results
+        </a>
+        <a class="side-link" href="{{ url_for('main.teacher_notices') }}">
+            <i class="bi bi-megaphone"></i> School Updates
+        </a>
+    </nav>
+
+    <div class="sidebar-bottom">
+        <a class="side-link" href="{{ url_for('main.home') }}">
+            <i class="bi bi-house"></i> Public Website
+        </a>
+        <a class="side-link" href="{{ url_for('main.logout') }}">
+            <i class="bi bi-box-arrow-left"></i> Sign Out
+        </a>
+    </div>
+</aside>
+
+<main class="main">
+
+    <header class="topbar">
+        <div>
+            <div class="eyebrow">Teacher Portal / Overview</div>
+            <h2 class="top-title">Teaching Dashboard</h2>
+        </div>
+
+        <div class="profile">
+            <div class="avatar"><i class="bi bi-person-workspace"></i></div>
+            <div>
+                <div class="fw-bold small">Teacher Account</div>
+                <div class="eyebrow">Teaching Staff</div>
+            </div>
+        </div>
+    </header>
+
+    <section class="welcome">
+        <h1>Welcome back, Teacher <span aria-hidden="true">✦</span></h1>
+        <p>Manage your classes, track attendance, and help your students achieve their best.</p>
+        <span class="date-pill">
+            <i class="bi bi-journal-check"></i>
+            Your teaching workspace
+        </span>
+    </section>
+
+    {% if profile_missing %}
+    <div class="alert alert-warning mt-4">Your teacher account is not linked to a teacher profile yet. Please ask an Admin to link it before using teaching records.</div>
+    {% endif %}
+
+    <h2 class="section-heading">Teaching Overview</h2>
+
+    <div class="row g-3">
+        <div class="col-6 col-xl-3">
+            <a class="stat-card d-block text-decoration-none text-reset" href="{{ url_for('main.teacher_classes') }}">
+                <div class="stat-top">
+                    <span class="stat-icon icon-blue"><i class="bi bi-building"></i></span>
+                </div>
+                <div class="stat-label">My Classes</div>
+                <div class="stat-number">{{ classrooms|length }}</div>
+                <div class="stat-note">Assigned classes</div>
+            </a>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <a class="stat-card d-block text-decoration-none text-reset" href="{{ url_for('main.teacher_classes') }}">
+                <div class="stat-top">
+                    <span class="stat-icon icon-green"><i class="bi bi-people-fill"></i></span>
+                </div>
+                <div class="stat-label">My Students</div>
+                <div class="stat-number">{{ student_count }}</div>
+                <div class="stat-note">Across your classes</div>
+            </a>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <a class="stat-card d-block text-decoration-none text-reset" href="{{ url_for('main.teacher_attendance') }}">
+                <div class="stat-top">
+                    <span class="stat-icon icon-orange"><i class="bi bi-calendar2-check"></i></span>
+                </div>
+                <div class="stat-label">Attendance</div>
+                <div class="stat-number">{{ attendance_total }}</div>
+                <div class="stat-note">{{ attendance_counts['Present'] }} present · {{ attendance_counts['Absent'] }} absent</div>
+            </a>
+        </div>
+
+        <div class="col-6 col-xl-3">
+            <a class="stat-card d-block text-decoration-none text-reset" href="{{ url_for('main.teacher_subjects') }}">
+                <div class="stat-top">
+                    <span class="stat-icon icon-purple"><i class="bi bi-journal-bookmark"></i></span>
+                </div>
+                <div class="stat-label">My Subjects</div>
+                <div class="stat-number">{{ assignments|length }}</div>
+                <div class="stat-note">Assigned subjects</div>
+            </a>
+        </div>
+    </div>
+
+    <h2 class="section-heading" id="teaching">Teaching Tools</h2>
+
+    <div class="row g-3">
+        <div class="col-md-6 col-xl-4">
+            <a href="{{ url_for('main.teacher_classes') }}" class="module-card">
+                <span class="module-icon icon-blue"><i class="bi bi-building"></i></span>
+                <span>
+                    <h3>My Classes</h3>
+                    <p>View the classes assigned to you by the administration.</p>
+                </span>
+                <i class="bi bi-arrow-up-right module-arrow"></i>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+            <a href="{{ url_for('main.teacher_subjects') }}" class="module-card">
+                <span class="module-icon icon-purple"><i class="bi bi-journal-bookmark-fill"></i></span>
+                <span>
+                    <h3>My Subjects</h3>
+                    <p>Review the subjects you teach in your assigned classes.</p>
+                </span>
+                <i class="bi bi-arrow-up-right module-arrow"></i>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+            <a href="{{ url_for('main.teacher_attendance') }}" class="module-card">
+                <span class="module-icon icon-green"><i class="bi bi-calendar2-check-fill"></i></span>
+                <span>
+                    <h3>Attendance</h3>
+                    <p>Record and review daily attendance for your classes.</p>
+                </span>
+                <i class="bi bi-arrow-up-right module-arrow"></i>
+            </a>
+        </div>
+
+        <div class="col-md-6 col-xl-4">
+            <a href="{{ url_for('main.teacher_results') }}" class="module-card">
+                <span class="module-icon icon-orange"><i class="bi bi-pencil-square"></i></span>
+                <span>
+                    <h3>Marks & Results</h3>
+                    <p>Enter examination marks and review student results.</p>
+                </span>
+                <i class="bi bi-arrow-up-right module-arrow"></i>
+            </a>
+        </div>
+    </div>
+
+    <h2 class="section-heading" id="updates">School Updates</h2>
+
+    {% if notices %}
+    {% for notice in notices[:3] %}
+    <a class="notice text-decoration-none text-reset mb-3" href="{{ url_for('main.teacher_notice_detail', notice_id=notice.id) }}">
+        <div class="notice-icon"><i class="bi bi-megaphone"></i></div>
+        <div><h3 class="fw-bold mb-1" style="font-size:14px;">{{ notice.title }}</h3><p class="text-secondary mb-0" style="font-size:12px; line-height:1.7;">{{ notice.body|truncate(140) }}</p></div>
+    </a>
+    {% endfor %}
+    {% else %}
+    <div class="notice"><div class="notice-icon"><i class="bi bi-info-circle"></i></div><div><h3 class="fw-bold mb-1" style="font-size:14px;">No notices published yet</h3><p class="text-secondary mb-0" style="font-size:12px; line-height:1.7;">Published school announcements will appear here.</p></div></div>
+    {% endif %}
+
+    <footer class="footer d-flex justify-content-between flex-wrap gap-2">
+        <span>© SchoolPortal · Teacher Portal</span>
+        <span>Teaching, learning, progress</span>
+    </footer>
+
+</main>
+
+</body>
+</html>

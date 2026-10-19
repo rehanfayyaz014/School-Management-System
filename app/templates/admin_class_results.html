@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Class Results &mdash; {{ exam.name }} | SchoolPortal</title>
+  <meta name="description" content="Admin class result matrix for {{ exam.name }} in {{ exam.classroom.name }}.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --navy:      #111c3a;
+      --blue:      #4568f5;
+      --blue-lt:   #edf1ff;
+      --muted:     #7b8499;
+      --canvas:    #f5f7fc;
+      --white:     #ffffff;
+      --border:    #edf0f7;
+      --active-bg: #26365d;
+      --active-bd: #8195ff;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", sans-serif;
+      background: var(--canvas);
+      color: #202b45;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 260px;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px 20px;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #5d708f;
+      padding: 0 10px;
+      margin-bottom: 6px;
+    }
+    .sidebar a.nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #c2cbe0;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 2px;
+      transition: background .15s, color .15s;
+    }
+    .sidebar a.nav-link:hover { background: #1e2f52; color: #fff; }
+    .sidebar a.nav-link.active {
+      background: var(--active-bg);
+      color: #fff;
+      border-left: 3px solid var(--active-bd);
+    }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-bottom a.nav-link { color: #8ea0bc; }
+
+    /* ── Main area ───────────────────────────────────────────────────── */
+    .main {
+      margin-left: 260px;
+      padding: 36px 32px;
+      min-height: 100vh;
+    }
+
+    /* ── Top header ──────────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .breadcrumb-nav {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .breadcrumb-nav a { color: var(--blue); text-decoration: none; }
+    .breadcrumb-nav a:hover { text-decoration: underline; }
+    .page-title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin: 0 0 2px;
+      color: var(--navy);
+    }
+    .page-subtitle { color: var(--muted); font-size: 0.9rem; margin: 0; }
+    .header-actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; padding-top: 4px; }
+
+    /* ── Flash messages ──────────────────────────────────────────────── */
+    .alerts { margin-bottom: 20px; }
+    .alert { border-radius: 10px; font-size: 0.88rem; }
+
+    /* ── Info card ───────────────────────────────────────────────────── */
+    .info-card {
+      background: var(--white);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 20px 24px;
+      margin-bottom: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+    .info-item { display: flex; flex-direction: column; gap: 2px; }
+    .info-label { font-size: 0.73rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+    .info-value { font-size: 0.97rem; font-weight: 600; color: var(--navy); }
+
+    /* ── Stats row ───────────────────────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .stat-label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--navy); line-height: 1.1; }
+    .stat-value.good  { color: #168452; }
+    .stat-value.warn  { color: #c07000; }
+    .stat-value.blue  { color: var(--blue); }
+
+    /* ── Content card ────────────────────────────────────────────────── */
+    .content-card {
+      background: var(--white);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card-heading { margin-bottom: 18px; }
+    .card-heading h2 { font-size: 1.05rem; font-weight: 700; color: var(--navy); margin: 0 0 2px; }
+    .card-heading p  { font-size: 0.85rem; color: var(--muted); margin: 0; }
+
+    /* ── Result matrix table ─────────────────────────────────────────── */
+    .result-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.87rem; }
+    .result-table thead th {
+      background: var(--navy);
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      padding: 12px 14px;
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+    }
+    .result-table thead th:first-child { border-radius: 8px 0 0 0; }
+    .result-table thead th:last-child  { border-radius: 0 8px 0 0; }
+    .result-table tbody tr:hover { background: #f1f4fd; }
+    .result-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .result-table tbody tr:last-child td { border-bottom: none; }
+    .result-table tbody tr:nth-child(even) td { background: #fafbfe; }
+    .result-table tbody tr:nth-child(even):hover td { background: #f1f4fd; }
+
+    /* Student rows without any recorded marks */
+    .no-marks-row td { color: #a3aec4; }
+
+    /* Individual cell content */
+    .marks-num { font-weight: 600; color: var(--navy); }
+    .no-marks-row .marks-num { color: #b0bad0; }
+
+    .no-record { color: #b0bad0; font-style: italic; }
+
+    /* Grade badge */
+    .grade-badge {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 5px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+    .grade-Aplus { background: #dcfce7; color: #15803d; }
+    .grade-A     { background: #d1fae5; color: #065f46; }
+    .grade-B     { background: #dbeafe; color: #1e40af; }
+    .grade-C     { background: #fef9c3; color: #713f12; }
+    .grade-D     { background: #ffedd5; color: #9a3412; }
+    .grade-F     { background: #fee2e2; color: #991b1b; }
+
+    /* Total/Max/% columns */
+    .col-num { text-align: center; font-variant-numeric: tabular-nums; }
+    .pct-value { font-weight: 700; color: var(--blue); }
+    .no-marks-row .pct-value { color: #b0bad0; }
+
+    /* ── Table note ──────────────────────────────────────────────────── */
+    .table-note {
+      margin-top: 14px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: #f8f9fd;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+    }
+
+    /* ── Empty state ─────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+    }
+    .empty-state i { font-size: 2.5rem; display: block; margin-bottom: 12px; color: #c2cbe0; }
+    .empty-state p { font-size: 0.95rem; margin: 0 0 16px; }
+
+    /* ── Action footer ───────────────────────────────────────────────── */
+    .action-footer {
+      display: flex;
+      justify-content: flex-start;
+      gap: 12px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────────────────── */
+    .btn-navy {
+      background: var(--navy); color: #fff; border: none;
+      border-radius: 8px; padding: 9px 18px; font-size: 0.88rem;
+      font-weight: 600; text-decoration: none; display: inline-flex;
+      align-items: center; gap: 6px; transition: opacity .15s;
+    }
+    .btn-navy:hover { color: #fff; opacity: .88; }
+    .btn-blue {
+      background: var(--blue); color: #fff; border: none;
+      border-radius: 8px; padding: 9px 18px; font-size: 0.88rem;
+      font-weight: 600; text-decoration: none; display: inline-flex;
+      align-items: center; gap: 6px; transition: opacity .15s;
+    }
+    .btn-blue:hover { color: #fff; opacity: .88; }
+    .btn-outline {
+      background: transparent; color: var(--navy);
+      border: 1.5px solid #c8d0e0; border-radius: 8px; padding: 8px 17px;
+      font-size: 0.88rem; font-weight: 600; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 6px; transition: all .15s;
+    }
+    .btn-outline:hover { background: var(--blue-lt); border-color: var(--blue); color: var(--blue); }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ Sidebar ════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <a class="brand" href="{{ url_for('main.admin_dashboard') }}">
+    <i class="bi bi-mortarboard-fill"></i> SchoolPortal
+  </a>
+
+  <div class="nav-label">Main Menu</div>
+  <a class="nav-link" href="{{ url_for('main.admin_dashboard') }}">
+    <i class="bi bi-grid-1x2"></i> Overview
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_students') }}">
+    <i class="bi bi-people"></i> Students
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_teachers') }}">
+    <i class="bi bi-person-badge"></i> Teachers
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_classes') }}">
+    <i class="bi bi-building"></i> Classes &amp; Subjects
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_attendance') }}">
+    <i class="bi bi-calendar-check"></i> Attendance
+  </a>
+  <a class="nav-link active" href="{{ url_for('main.admin_exams') }}">
+    <i class="bi bi-journal-check"></i> Exams &amp; Results
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_student_results_report') }}">
+    <i class="bi bi-person-lines-fill"></i> Student Results
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_fees') }}">
+    <i class="bi bi-wallet2"></i> Fee Management
+  </a>
+
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-bottom">
+    <a class="nav-link" href="{{ url_for('main.home') }}">
+      <i class="bi bi-globe"></i> Public Website
+    </a>
+    <a class="nav-link" href="{{ url_for('main.logout') }}">
+      <i class="bi bi-box-arrow-left"></i> Sign Out
+    </a>
+  </div>
+</aside>
+
+<!-- ═══════ Main ════════════════════════════════════════════════════════════ -->
+<main class="main">
+
+  <!-- Flash messages -->
+  <div class="alerts">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endwith %}
+  </div>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div>
+      <div class="breadcrumb-nav">
+        <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a>
+        &rsaquo; <a href="{{ url_for('main.admin_exams') }}">Exams &amp; Results</a>
+        &rsaquo; {{ exam.classroom.name }}
+        &rsaquo; {{ exam.name }}
+      </div>
+      <h1 class="page-title">Class Results</h1>
+      <p class="page-subtitle">{{ exam.name }} &mdash; {{ exam.classroom.name }}</p>
+    </div>
+    <div class="header-actions">
+      <a href="{{ url_for('main.admin_exams') }}" class="btn-outline">
+        <i class="bi bi-arrow-left"></i> All Exams
+      </a>
+      <a href="{{ url_for('main.admin_class_results_pdf', exam_id=exam.id) }}"
+         class="btn-navy" id="btn-download-pdf">
+        <i class="bi bi-file-earmark-pdf"></i> Download PDF
+      </a>
+    </div>
+  </header>
+
+  <!-- Exam info card -->
+  <div class="info-card">
+    <div class="info-item">
+      <span class="info-label">Class</span>
+      <span class="info-value">{{ exam.classroom.name }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Exam Date</span>
+      <span class="info-value">{{ exam.exam_date }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Max Marks / Subject</span>
+      <span class="info-value">{{ exam.total_marks }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Subjects on Record</span>
+      <span class="info-value">{{ subjects | length }}</span>
+    </div>
+    <div class="info-item">
+      <span class="info-label">Status</span>
+      <span class="info-value">
+        <span class="badge text-bg-{{ 'success' if exam.is_published else 'secondary' }}">
+          {{ 'Published' if exam.is_published else 'Draft' }}
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Summary stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-label">Total Students</span>
+      <span class="stat-value">{{ total_students }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Students with Marks</span>
+      <span class="stat-value good">{{ students_with_results }}</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Without Marks</span>
+      <span class="stat-value {% if students_without_results > 0 %}warn{% endif %}">
+        {{ students_without_results }}
+      </span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-label">Class Average</span>
+      {% if class_average is not none %}
+        <span class="stat-value blue">{{ '%.1f' | format(class_average) }}%</span>
+      {% else %}
+        <span class="stat-value" style="color:#b0bad0;">&#8212;</span>
+        <span style="font-size:.75rem;color:var(--muted);">No marks recorded</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Results matrix -->
+  <div class="content-card">
+    <div class="card-heading">
+      <h2>Result Matrix</h2>
+      <p>All active students in <strong>{{ exam.classroom.name }}</strong> and their recorded marks for <strong>{{ exam.name }}</strong>.</p>
+    </div>
+
+    {% if not subjects %}
+      <div class="empty-state">
+        <i class="bi bi-clipboard-x"></i>
+        <p>No subjects are assigned to <strong>{{ exam.classroom.name }}</strong>.</p>
+        <a href="{{ url_for('main.admin_classes') }}" class="btn-outline">Manage Class Subjects</a>
+      </div>
+
+    {% elif not student_rows %}
+      <div class="empty-state">
+        <i class="bi bi-people"></i>
+        <p>No active students are enrolled in <strong>{{ exam.classroom.name }}</strong>.</p>
+      </div>
+
+    {% else %}
+      <div class="table-responsive">
+        <table class="result-table" id="result-matrix">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Roll No</th>
+              {% for subject in subjects %}
+                <th class="col-num">{{ subject.name }}</th>
+              {% endfor %}
+              <th class="col-num">Total</th>
+              <th class="col-num">Max</th>
+              <th class="col-num">%</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in student_rows %}
+              {%- set grade_map = {'A+':'Aplus','A':'A','B':'B','C':'C','D':'D','F':'F'} -%}
+              <tr class="{{ 'no-marks-row' if not row.has_results }}">
+                <td><strong>{{ row.student.full_name }}</strong></td>
+                <td>{{ row.student.roll_number }}</td>
+
+                {% for cell in row.cells %}
+                  <td class="col-num">
+                    {% if cell is not none %}
+                      <span class="marks-num">{{ '%g' | format(cell.marks | float) }}</span>
+                      {% if cell.grade %}
+                        <span class="grade-badge grade-{{ grade_map.get(cell.grade, '') }}">{{ cell.grade }}</span>
+                      {% endif %}
+                    {% else %}
+                      <span class="no-record">&#8212;</span>
+                    {% endif %}
+                  </td>
+                {% endfor %}
+
+                <td class="col-num">
+                  {% if row.total_obtained is not none %}
+                    <strong>{{ '%g' | format(row.total_obtained) }}</strong>
+                  {% else %}
+                    <span class="no-record">&#8212;</span>
+                  {% endif %}
+                </td>
+                <td class="col-num">
+                  {{ row.max_marks if row.max_marks is not none else '&#8212;' | safe }}
+                </td>
+                <td class="col-num">
+                  {% if row.percentage is not none %}
+                    <span class="pct-value">{{ '%.1f' | format(row.percentage) }}%</span>
+                  {% else %}
+                    <span class="no-record">&#8212;</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if students_without_results > 0 %}
+        <div class="table-note">
+          <i class="bi bi-info-circle me-1"></i>
+          Rows showing <em>&ldquo;&#8212;&rdquo;</em> for all subjects have no recorded marks.
+          This is distinct from a student who received <strong>zero</strong> marks.
+          Totals and percentages are based only on subjects with recorded marks.
+        </div>
+      {% endif %}
+
+    {% endif %}
+  </div><!-- /.content-card -->
+
+  <!-- Quick navigation to individual student results -->
+  <div class="action-footer">
+    <a href="{{ url_for('main.admin_student_results_report', class_id=exam.class_id) }}"
+       class="btn-outline" id="btn-student-results">
+      <i class="bi bi-person-lines-fill"></i>
+      View Individual Student Results for {{ exam.classroom.name }}
+    </a>
+  </div>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

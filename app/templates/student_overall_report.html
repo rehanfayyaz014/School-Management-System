@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Report — {{ student.full_name }} | SchoolPortal</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        :root { --blue:#3454df; --navy:#14234b; --muted:#7a869a; --bg:#f4f6fc; --sidebar-w:230px; }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:Inter,sans-serif;background:var(--bg);color:var(--navy);display:flex;min-height:100vh;}
+        /* Sidebar */
+        .sidebar{width:var(--sidebar-w);min-height:100vh;background:var(--navy);color:#fff;display:flex;flex-direction:column;padding:0 0 20px;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+        .brand{display:flex;align-items:center;gap:10px;padding:22px 22px 18px;font-size:18px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.08);}
+        .nav-label{font-size:10px;font-weight:700;letter-spacing:1.2px;color:rgba(255,255,255,.35);padding:18px 22px 6px;}
+        .sidebar a{display:flex;align-items:center;gap:10px;padding:11px 22px;color:rgba(255,255,255,.7);text-decoration:none;font-size:13.5px;transition:.15s;}
+        .sidebar a:hover,.sidebar a.active{background:rgba(255,255,255,.08);color:#fff;}
+        .sidebar a i{font-size:16px;}
+        .sidebar-bottom{margin-top:auto;}
+        /* Main */
+        .main{margin-left:var(--sidebar-w);flex:1;padding:28px 32px 48px;max-width:calc(100vw - var(--sidebar-w));}
+        .topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:14px;}
+        .page-title{font-size:22px;font-weight:750;}
+        .subtitle{color:var(--muted);font-size:13.5px;margin-top:3px;}
+        .topbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+        .primary-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:9px;background:var(--blue);color:#fff;font-size:13px;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:.2s;}
+        .primary-btn:hover{background:#2340c0;color:#fff;}
+        .outline-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:9px;background:#fff;color:var(--navy);border:1px solid #d0d7e8;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;transition:.2s;}
+        .outline-btn:hover{background:#f0f2fa;}
+        .breadcrumb-bar{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-bottom:20px;}
+        .breadcrumb-bar a{color:var(--blue);text-decoration:none;}
+        .breadcrumb-bar a:hover{text-decoration:underline;}
+        /* Hero */
+        .hero-card{background:linear-gradient(135deg,#14234b 0%,#3454df 100%);border-radius:16px;padding:28px 32px;color:#fff;display:flex;align-items:center;gap:28px;margin-bottom:24px;}
+        .hero-avatar{width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:30px;flex-shrink:0;}
+        .hero-name{font-size:22px;font-weight:750;}
+        .hero-sub{font-size:13.5px;opacity:.8;margin-top:3px;}
+        .hero-badges{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+        .hero-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;background:rgba(255,255,255,.15);font-size:11.5px;font-weight:600;}
+        /* Metrics */
+        .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;}
+        .metric-card{background:#fff;border:1px solid #edf0f7;border-radius:13px;padding:18px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 3px 12px rgba(20,35,75,.04);}
+        .metric-icon{width:44px;height:44px;border-radius:11px;display:grid;place-items:center;font-size:20px;flex-shrink:0;}
+        .metric-label{font-size:11.5px;color:var(--muted);font-weight:600;margin-bottom:3px;}
+        .metric-value{font-size:20px;font-weight:750;}
+        /* Section cards */
+        .section-card{background:#fff;border:1px solid #edf0f7;border-radius:14px;margin-bottom:22px;box-shadow:0 3px 14px rgba(20,35,75,.035);overflow:hidden;}
+        .section-header{padding:18px 24px;border-bottom:1px solid #edf0f7;display:flex;align-items:center;gap:12px;}
+        .section-icon{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:17px;}
+        .section-title{font-size:15px;font-weight:700;}
+        .section-body{padding:20px 24px;}
+        /* Info grid */
+        .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 24px;}
+        .info-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+        .info-val{font-size:13.5px;font-weight:550;}
+        /* Attendance stats */
+        .att-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+        .att-stat{background:#f7f9ff;border-radius:10px;padding:14px 12px;text-align:center;}
+        .att-stat-val{font-size:22px;font-weight:750;}
+        .att-stat-lbl{font-size:11px;color:var(--muted);margin-top:2px;}
+        /* Tables */
+        .report-table{width:100%;border-collapse:collapse;font-size:13px;}
+        .report-table thead th{background:#f7f9ff;color:var(--muted);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:11px 12px;text-align:left;}
+        .report-table tbody td{padding:11px 12px;border-bottom:1px solid #f0f2f8;}
+        .report-table tbody tr:last-child td{border-bottom:none;}
+        .report-table tbody tr:hover{background:#fafbff;}
+        /* Badges */
+        .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+        .badge-present{background:#e5f8ef;color:#168452;}
+        .badge-absent{background:#fff0e9;color:#c45b32;}
+        .badge-late{background:#fff8e1;color:#a07800;}
+        .badge-paid{background:#e5f8ef;color:#168452;}
+        .badge-partial{background:#fff8e1;color:#a07800;}
+        .badge-unpaid{background:#f0f2f8;color:#5a6480;}
+        .badge-overdue{background:#fff0e9;color:#c45b32;}
+        .grade-pill{display:inline-block;padding:2px 9px;border-radius:6px;font-size:12px;font-weight:700;background:#edf1ff;color:var(--blue);}
+        /* Progress */
+        .progress-wrap{background:#edf0f7;border-radius:999px;height:8px;overflow:hidden;margin-top:6px;}
+        .progress-fill{height:100%;border-radius:999px;}
+        /* Empty state */
+        .empty-state{text-align:center;padding:36px 20px;color:var(--muted);}
+        .empty-state i{font-size:40px;display:block;margin-bottom:10px;}
+        .empty-state p{font-size:13.5px;}
+        /* Exam group */
+        .exam-group-title{font-size:13.5px;font-weight:700;color:var(--navy);padding:12px 0 6px;border-top:1px solid #edf0f7;margin-top:14px;}
+        .exam-group-title:first-of-type{margin-top:0;border-top:none;}
+        /* Notice */
+        .notice-item{padding:14px 0;border-bottom:1px solid #f0f2f8;}
+        .notice-item:last-child{border-bottom:none;}
+        .notice-title{font-size:13.5px;font-weight:650;margin-bottom:4px;}
+        .notice-meta{font-size:11.5px;color:var(--muted);}
+        /* Alert */
+        .alert-banner{border-radius:10px;padding:14px 18px;display:flex;align-items:flex-start;gap:12px;margin-bottom:16px;}
+        .alert-success{background:#e5f8ef;color:#168452;border-left:4px solid #168452;}
+        .alert-warning{background:#fff8e1;color:#a07800;border-left:4px solid #a07800;}
+        .alert-info{background:#edf1ff;color:var(--blue);border-left:4px solid var(--blue);}
+        /* Print */
+        @media print {
+            .sidebar,.topbar-actions,.breadcrumb-bar,.no-print{display:none!important;}
+            body{background:#fff!important;}
+            .main{margin-left:0!important;padding:12px!important;max-width:100%!important;}
+            .hero-card{background:#14234b!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+            .section-card{break-inside:avoid;}
+        }
+        @media(max-width:900px){
+            .metrics{grid-template-columns:repeat(2,1fr);}
+            .att-stats{grid-template-columns:repeat(3,1fr);}
+            .info-grid{grid-template-columns:repeat(2,1fr);}
+        }
+    </style>
+</head>
+<body>
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="brand"><i class="bi bi-mortarboard-fill"></i><span>SchoolPortal</span></div>
+    <div class="nav-label">MAIN MENU</div>
+    <a href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-grid-1x2"></i><span>Overview</span></a>
+    <a href="{{ url_for('main.admin_students') }}" class="active"><i class="bi bi-people"></i><span>Students</span></a>
+    <a href="{{ url_for('main.admin_teachers') }}"><i class="bi bi-person-badge"></i><span>Teachers</span></a>
+    <a href="{{ url_for('main.admin_classes') }}"><i class="bi bi-building"></i><span>Classes &amp; Subjects</span></a>
+    <a href="{{ url_for('main.admin_attendance') }}"><i class="bi bi-calendar-check"></i><span>Attendance</span></a>
+    <a href="{{ url_for('main.admin_exams') }}"><i class="bi bi-journal-check"></i><span>Exams &amp; Results</span></a>
+    <a href="{{ url_for('main.admin_fees') }}"><i class="bi bi-wallet2"></i><span>Fee Management</span></a>
+    <div class="sidebar-bottom">
+        <a href="{{ url_for('main.home') }}"><i class="bi bi-globe"></i><span>Public Website</span></a>
+        <a href="{{ url_for('main.logout') }}"><i class="bi bi-box-arrow-left"></i><span>Sign Out</span></a>
+    </div>
+</aside>
+
+<!-- Main -->
+<main class="main">
+    <div class="breadcrumb-bar no-print">
+        <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a>
+        <i class="bi bi-chevron-right"></i>
+        <a href="{{ url_for('main.admin_students') }}">Students</a>
+        <i class="bi bi-chevron-right"></i>
+        <span>Overall Report</span>
+    </div>
+
+    <div class="topbar">
+        <div>
+            <h1 class="page-title">Student Overall Report</h1>
+            <p class="subtitle">Complete academic &amp; financial dossier for {{ student.full_name }}</p>
+        </div>
+        <div class="topbar-actions no-print">
+            <button onclick="window.print()" class="outline-btn"><i class="bi bi-printer"></i> Print Report</button>
+            <a href="{{ url_for('main.student_overall_report_pdf', student_id=student.id) }}" class="primary-btn">
+                <i class="bi bi-file-earmark-pdf"></i> Download PDF
+            </a>
+            <a href="{{ url_for('main.admin_students') }}" class="outline-btn"><i class="bi bi-arrow-left"></i> Back</a>
+        </div>
+    </div>
+
+    <!-- Hero card -->
+    <div class="hero-card">
+        <div class="hero-avatar"><i class="bi bi-person-circle"></i></div>
+        <div>
+            <div class="hero-name">{{ student.full_name }}</div>
+            <div class="hero-sub">Roll No: {{ student.roll_number }}{% if student.classroom %} &bull; {{ student.classroom.name }}{% endif %}</div>
+            <div class="hero-badges">
+                {% if student.is_active %}<span class="hero-badge"><i class="bi bi-check-circle"></i> Active</span>{% else %}<span class="hero-badge"><i class="bi bi-x-circle"></i> Inactive</span>{% endif %}
+                {% if student.gender %}<span class="hero-badge"><i class="bi bi-person"></i> {{ student.gender }}</span>{% endif %}
+                {% if student.user %}<span class="hero-badge"><i class="bi bi-person-check"></i> Account Linked</span>{% else %}<span class="hero-badge"><i class="bi bi-person-dash"></i> No Account</span>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Metric cards -->
+    <div class="metrics">
+        <div class="metric-card">
+            <div class="metric-icon" style="background:#edf1ff;color:var(--blue)"><i class="bi bi-calendar-check"></i></div>
+            <div>
+                <div class="metric-label">Attendance Rate</div>
+                <div class="metric-value">{% if attendance.total_days %}{{ "%.0f"|format(attendance.percentage) }}%{% else %}N/A{% endif %}</div>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon" style="background:#fff8e1;color:#a07800"><i class="bi bi-trophy"></i></div>
+            <div>
+                <div class="metric-label">Overall Grade</div>
+                <div class="metric-value">{{ exams.overall_grade or 'N/A' }}</div>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon" style="background:{% if fees.total_balance > 0 %}#fff0e9{% else %}#e5f8ef{% endif %};color:{% if fees.total_balance > 0 %}#c45b32{% else %}#168452{% endif %}"><i class="bi bi-wallet2"></i></div>
+            <div>
+                <div class="metric-label">Fee Balance</div>
+                <div class="metric-value">PKR {{ "%.0f"|format(fees.total_balance) }}</div>
+            </div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon" style="background:#f0faf3;color:#1a7a46"><i class="bi bi-journal-check"></i></div>
+            <div>
+                <div class="metric-label">Exams Taken</div>
+                <div class="metric-value">{{ exams.exams_data|length }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- A: Student Information -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-icon" style="background:#edf1ff;color:var(--blue)"><i class="bi bi-person-vcard"></i></div>
+            <div class="section-title">A. Student Information</div>
+        </div>
+        <div class="section-body">
+            <div class="info-grid">
+                <div><div class="info-label">Full Name</div><div class="info-val">{{ student.full_name }}</div></div>
+                <div><div class="info-label">Roll Number</div><div class="info-val">{{ student.roll_number }}</div></div>
+                <div><div class="info-label">Class / Section</div><div class="info-val">{{ student.classroom.name if student.classroom else '—' }}</div></div>
+                <div><div class="info-label">Gender</div><div class="info-val">{{ student.gender or '—' }}</div></div>
+                <div><div class="info-label">Date of Birth</div><div class="info-val">{% if student.date_of_birth %}{{ student.date_of_birth.strftime('%B %d, %Y') }}{% else %}—{% endif %}</div></div>
+                <div><div class="info-label">Phone</div><div class="info-val">{{ student.phone or '—' }}</div></div>
+                <div><div class="info-label">Login Account</div><div class="info-val">{{ student.user.username if student.user else '—' }}</div></div>
+                <div><div class="info-label">Enrollment Status</div><div class="info-val">{% if student.is_active %}<span class="badge badge-present">Active</span>{% else %}<span class="badge badge-absent">Inactive</span>{% endif %}</div></div>
+                <div><div class="info-label">Student ID</div><div class="info-val">#{{ student.id }}</div></div>
+                {% if student.address %}<div style="grid-column:span 3"><div class="info-label">Address</div><div class="info-val">{{ student.address }}</div></div>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- B: Attendance -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-icon" style="background:#e5f8ef;color:#168452"><i class="bi bi-calendar3"></i></div>
+            <div class="section-title">B. Attendance Report</div>
+        </div>
+        <div class="section-body">
+            {% if attendance.total_days == 0 %}
+            <div class="empty-state"><i class="bi bi-calendar-x"></i><p>No attendance records found for this student.</p></div>
+            {% else %}
+            <div class="att-stats">
+                <div class="att-stat"><div class="att-stat-val" style="color:var(--navy)">{{ attendance.total_days }}</div><div class="att-stat-lbl">Recorded Days</div></div>
+                <div class="att-stat"><div class="att-stat-val" style="color:#168452">{{ attendance.Present }}</div><div class="att-stat-lbl">Present</div></div>
+                <div class="att-stat"><div class="att-stat-val" style="color:#c45b32">{{ attendance.Absent }}</div><div class="att-stat-lbl">Absent</div></div>
+                <div class="att-stat"><div class="att-stat-val" style="color:#a07800">{{ attendance.Late }}</div><div class="att-stat-lbl">Late</div></div>
+                <div class="att-stat"><div class="att-stat-val" style="color:var(--blue)">{{ "%.1f"|format(attendance.percentage) }}%</div><div class="att-stat-lbl">Attendance Rate</div></div>
+            </div>
+            <div class="progress-wrap" style="margin-bottom:20px">
+                <div class="progress-fill" style="width:{{ [attendance.percentage,100]|min }}%;background:{% if attendance.percentage>=75 %}#168452{% elif attendance.percentage>=50 %}#a07800{% else %}#c45b32{% endif %}"></div>
+            </div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--navy)">Recent Attendance (last {{ attendance.recent|length }} records)</div>
+            <div style="overflow-x:auto">
+            <table class="report-table">
+                <thead><tr><th>Date</th><th>Day</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for rec in attendance.recent %}
+                <tr>
+                    <td>{{ rec.attendance_date.strftime('%d %b %Y') }}</td>
+                    <td>{{ rec.attendance_date.strftime('%A') }}</td>
+                    <td>{% if rec.status == 'Present' %}<span class="badge badge-present">Present</span>{% elif rec.status == 'Absent' %}<span class="badge badge-absent">Absent</span>{% else %}<span class="badge badge-late">Late</span>{% endif %}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% if attendance.monthly %}
+            <div style="margin-top:20px">
+                <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:var(--navy)">Monthly Summary</div>
+                <div style="overflow-x:auto">
+                <table class="report-table">
+                    <thead><tr><th>Month</th><th>Total Days</th><th>Present</th><th>Absent</th><th>Late</th><th>Rate</th></tr></thead>
+                    <tbody>
+                    {% for ms in attendance.monthly %}
+                    {% set rate = ((ms.totals.Present + ms.totals.Late) / ms.total_days * 100) if ms.total_days else 0 %}
+                    <tr>
+                        <td style="font-weight:600">{{ ms.label }}</td>
+                        <td>{{ ms.total_days }}</td>
+                        <td style="color:#168452;font-weight:600">{{ ms.totals.Present }}</td>
+                        <td style="color:#c45b32;font-weight:600">{{ ms.totals.Absent }}</td>
+                        <td style="color:#a07800;font-weight:600">{{ ms.totals.Late }}</td>
+                        <td>{{ "%.1f"|format(rate) }}%</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- C: Exams -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-icon" style="background:#fff8e1;color:#a07800"><i class="bi bi-trophy"></i></div>
+            <div class="section-title">C. Exams &amp; Results</div>
+        </div>
+        <div class="section-body">
+            {% if not exams.has_results %}
+            <div class="empty-state"><i class="bi bi-journal-x"></i><p>No examination results have been recorded for this student yet.</p></div>
+            {% else %}
+            <div class="alert-banner alert-info" style="margin-bottom:18px">
+                <i class="bi bi-bar-chart-fill" style="font-size:18px;flex-shrink:0"></i>
+                <div>
+                    <strong>Overall Performance</strong><br />
+                    Total Marks: <strong>{{ exams.total_obtained }} / {{ exams.total_max }}</strong>
+                    &nbsp;&bull;&nbsp; Percentage: <strong>{{ exams.overall_pct }}%</strong>
+                    &nbsp;&bull;&nbsp; Grade: <span class="grade-pill">{{ exams.overall_grade }}</span>
+                </div>
+            </div>
+            {% for ed in exams.exams_data %}
+            <div class="exam-group-title">
+                <i class="bi bi-journal-text"></i> {{ ed.exam.name }}
+                <span style="color:var(--muted);font-weight:500;font-size:12px">
+                    &mdash; {{ ed.exam.exam_date.strftime('%d %b %Y') if ed.exam.exam_date else '' }}
+                    &bull; Total Marks: {{ ed.exam.total_marks }}
+                </span>
+            </div>
+            {% if ed.subject_rows %}
+            <div style="overflow-x:auto;margin-bottom:10px">
+            <table class="report-table">
+                <thead><tr><th>Subject</th><th>Marks</th><th>Out Of</th><th>Percentage</th><th>Grade</th><th>Remarks</th></tr></thead>
+                <tbody>
+                {% for sr in ed.subject_rows %}
+                <tr>
+                    <td style="font-weight:600">{{ sr.subject.name }}</td>
+                    <td>{{ sr.result.marks }}</td>
+                    <td>{{ ed.exam.total_marks }}</td>
+                    <td>{{ sr.percentage }}%</td>
+                    <td><span class="grade-pill">{{ sr.grade }}</span></td>
+                    <td style="color:var(--muted)">{{ sr.result.remarks or '—' }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% else %}
+            <p style="color:var(--muted);font-size:13px;padding:8px 0">No results recorded for this exam.</p>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- D: Fees -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-icon" style="background:#f0faf3;color:#1a7a46"><i class="bi bi-wallet2"></i></div>
+            <div class="section-title">D. Fees Report</div>
+        </div>
+        <div class="section-body">
+            {% if not fees.fee_records %}
+            <div class="empty-state"><i class="bi bi-wallet"></i><p>No fee records have been created for this student yet.</p></div>
+            {% else %}
+            <div class="att-stats" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px">
+                <div class="att-stat"><div class="att-stat-val" style="color:var(--navy)">{{ fees.invoices_count }}</div><div class="att-stat-lbl">Invoices</div></div>
+                <div class="att-stat"><div class="att-stat-val" style="color:var(--navy);font-size:16px">PKR {{ "%.0f"|format(fees.total_assessed) }}</div><div class="att-stat-lbl">Total Assessed</div></div>
+                <div class="att-stat"><div class="att-stat-val" style="color:#168452;font-size:16px">PKR {{ "%.0f"|format(fees.total_paid) }}</div><div class="att-stat-lbl">Total Paid</div></div>
+                <div class="att-stat"><div class="att-stat-val" style="color:{% if fees.total_balance > 0 %}#c45b32{% else %}#168452{% endif %};font-size:16px">PKR {{ "%.0f"|format(fees.total_balance) }}</div><div class="att-stat-lbl">Outstanding</div></div>
+            </div>
+            {% if fees.total_balance > 0 %}
+            <div class="alert-banner alert-warning"><i class="bi bi-exclamation-triangle-fill" style="flex-shrink:0"></i><div>Outstanding balance of <strong>PKR {{ "%.2f"|format(fees.total_balance) }}</strong> is pending. Status: <strong>{{ fees.status }}</strong></div></div>
+            {% else %}
+            <div class="alert-banner alert-success"><i class="bi bi-check-circle-fill" style="flex-shrink:0"></i><div>All fees have been paid. This student's account is clear.</div></div>
+            {% endif %}
+            <div style="overflow-x:auto">
+            <table class="report-table">
+                <thead><tr><th>Title</th><th>Billing Month</th><th>Due Date</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for fr in fees.fee_records %}
+                <tr>
+                    <td style="font-weight:600">{{ fr.title }}</td>
+                    <td>{{ fr.billing_month.strftime('%B %Y') }}</td>
+                    <td>{{ fr.due_date.strftime('%d %b %Y') }}</td>
+                    <td>PKR {{ "%.2f"|format(fr.amount) }}</td>
+                    <td>PKR {{ "%.2f"|format(fr.paid_amount) }}</td>
+                    <td>PKR {{ "%.2f"|format(fr.balance) }}</td>
+                    <td>
+                        {% set st = fr.status %}
+                        {% if st == 'Paid' %}<span class="badge badge-paid">Paid</span>
+                        {% elif st == 'Partial' %}<span class="badge badge-partial">Partial</span>
+                        {% elif st == 'Overdue' %}<span class="badge badge-overdue">Overdue</span>
+                        {% else %}<span class="badge badge-unpaid">Unpaid</span>{% endif %}
+                    </td>
+                </tr>
+                {% for pmt in fr.payments %}
+                <tr style="background:#fafbff">
+                    <td colspan="2" style="padding-left:28px;color:var(--muted);font-size:12px"><i class="bi bi-arrow-return-right"></i> {{ pmt.payment_method }} &mdash; Ref: {{ pmt.receipt_reference or 'N/A' }}</td>
+                    <td style="color:var(--muted);font-size:12px">{{ pmt.payment_date.strftime('%d %b %Y') }}</td>
+                    <td colspan="3" style="color:#168452;font-size:12px;font-weight:600">+ PKR {{ "%.2f"|format(pmt.amount) }}</td>
+                    <td style="color:var(--muted);font-size:12px">Receipt</td>
+                </tr>
+                {% endfor %}
+                {% endfor %}
+                </tbody>
+            </table>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- E: Notices -->
+    <div class="section-card">
+        <div class="section-header">
+            <div class="section-icon" style="background:#edf1ff;color:var(--blue)"><i class="bi bi-megaphone"></i></div>
+            <div class="section-title">E. Student Notices &amp; Announcements</div>
+        </div>
+        <div class="section-body">
+            {% if not notices %}
+            <div class="empty-state"><i class="bi bi-megaphone"></i><p>No published student notices at this time.</p></div>
+            {% else %}
+            {% for n in notices %}
+            <div class="notice-item">
+                <div class="notice-title">{{ n.title }}</div>
+                {% if n.content %}<div style="font-size:13px;color:var(--navy);margin:4px 0 6px">{{ n.content }}</div>{% endif %}
+                <div class="notice-meta">
+                    <i class="bi bi-calendar3"></i>
+                    {{ n.notice_date.strftime('%d %b %Y') if n.notice_date else '' }}
+                    {% if n.expires_on %} &bull; Expires: {{ n.expires_on.strftime('%d %b %Y') }}{% endif %}
+                    &bull; Audience: {% if n.audience == 'all' %}Everyone{% elif n.audience == 'student' %}Students{% else %}{{ n.audience }}{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <p style="text-align:center;font-size:11.5px;color:var(--muted);margin-top:10px">
+        Confidential document &mdash; generated by SchoolPortal. For official use only.
+    </p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

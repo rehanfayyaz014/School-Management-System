@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student | SchoolPortal</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #14213d;
+            --navy-light: #1d3155;
+            --gold: #d8aa55;
+            --bg: #f4f6fb;
+            --text: #243047;
+            --muted: #8791a5;
+            --border: #e5e9f1;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            flex-shrink: 0;
+            background: var(--navy);
+            color: #fff;
+            padding: 28px 18px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 10px 30px;
+            border-bottom: 1px solid rgba(255,255,255,.12);
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            display: grid;
+            place-items: center;
+            background: var(--gold);
+            color: var(--navy);
+            border-radius: 12px;
+            font-size: 22px;
+        }
+
+        .brand h5 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .brand small {
+            color: #aab5ca;
+            font-size: 11px;
+        }
+
+        .nav-heading {
+            color: #8290ab;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            padding: 28px 12px 12px;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            margin-bottom: 5px;
+            border-radius: 9px;
+            color: #c4ccdc;
+            text-decoration: none;
+            font-size: 13px;
+            transition: .2s;
+        }
+
+        .nav-link-custom i {
+            font-size: 17px;
+        }
+
+        .nav-link-custom:hover,
+        .nav-link-custom.active {
+            background: var(--navy-light);
+            color: #fff;
+        }
+
+        .nav-link-custom.active {
+            border-left: 3px solid var(--gold);
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 20px 10px 0;
+            border-top: 1px solid rgba(255,255,255,.12);
+        }
+
+        .sidebar-bottom a {
+            color: #c4ccdc;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .topbar {
+            height: 76px;
+            background: #fff;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 36px;
+        }
+
+        .topbar-label {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .admin-profile {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .avatar {
+            width: 39px;
+            height: 39px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: #e8edf8;
+            color: var(--navy);
+            font-weight: 700;
+        }
+
+        .admin-profile strong {
+            display: block;
+            font-size: 12px;
+        }
+
+        .admin-profile small {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .content {
+            max-width: 1120px;
+            margin: auto;
+            padding: 35px 36px;
+        }
+
+        .breadcrumb-custom {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .breadcrumb-custom a {
+            color: #526b98;
+            text-decoration: none;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .page-heading h1 {
+            font-size: clamp(23px, 3vw, 30px);
+            font-weight: 750;
+            letter-spacing: -.7px;
+            margin: 0 0 8px;
+        }
+
+        .page-heading p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: #fff;
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .btn-back:hover {
+            background: #f7f8fb;
+        }
+
+        .student-banner {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 23px;
+            margin-bottom: 24px;
+            background: linear-gradient(110deg, #172847, #29466f);
+            color: #fff;
+            border-radius: 14px;
+        }
+
+        .student-avatar {
+            width: 54px;
+            height: 54px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: rgba(255,255,255,.12);
+            color: #f0c979;
+            font-size: 25px;
+        }
+
+        .student-banner h5 {
+            font-size: 15px;
+            font-weight: 700;
+            margin: 0 0 5px;
+        }
+
+        .student-banner p {
+            font-size: 12px;
+            color: #c7d2e5;
+            margin: 0;
+        }
+
+        .form-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 5px 24px rgba(24, 42, 75, .035);
+            margin-bottom: 22px;
+        }
+
+        .form-card-header {
+            padding: 23px 27px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .section-icon {
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            background: #edf2fb;
+            color: #385887;
+            border-radius: 11px;
+            font-size: 20px;
+        }
+
+        .form-card-header h5 {
+            margin: 0 0 4px;
+            font-size: 14px;
+            font-weight: 750;
+        }
+
+        .form-card-header p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .form-card-body {
+            padding: 27px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 650;
+            margin-bottom: 9px;
+            color: #34415a;
+        }
+
+        .required {
+            color: #dc5353;
+        }
+
+        .form-control,
+        .form-select {
+            min-height: 46px;
+            border: 1px solid #dfe4ed;
+            border-radius: 9px;
+            padding: 11px 13px;
+            color: var(--text);
+            font-size: 13px;
+            background-color: #fff;
+        }
+
+        textarea.form-control {
+            min-height: 105px;
+            resize: vertical;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #7895c5;
+            box-shadow: 0 0 0 3px rgba(68, 105, 163, .10);
+        }
+
+        .form-control::placeholder {
+            color: #aab2c1;
+        }
+
+        .field-help {
+            color: var(--muted);
+            font-size: 10px;
+            margin-top: 7px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 20px 27px;
+            border-top: 1px solid var(--border);
+            background: #fcfcfe;
+        }
+
+        .btn-cancel,
+        .btn-save {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 43px;
+            padding: 11px 18px;
+            border-radius: 9px;
+            font-size: 12px;
+            font-weight: 650;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .btn-cancel {
+            background: #fff;
+            border: 1px solid var(--border);
+            color: #566177;
+        }
+
+        .btn-save {
+            background: var(--navy);
+            color: #fff;
+            border: 1px solid var(--navy);
+        }
+
+        .btn-save:hover {
+            background: #243b61;
+            color: #fff;
+        }
+
+        .btn-cancel:hover {
+            background: #f4f6fa;
+        }
+
+        .alert {
+            border-radius: 10px;
+            font-size: 13px;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: #9aa3b3;
+            font-size: 11px;
+            padding: 10px 0 0;
+        }
+
+        @media (max-width: 850px) {
+            .sidebar {
+                width: 75px;
+                padding: 24px 10px;
+            }
+
+            .brand {
+                justify-content: center;
+                padding: 0 0 25px;
+            }
+
+            .brand-text,
+            .nav-heading,
+            .nav-link-custom span,
+            .sidebar-bottom span {
+                display: none;
+            }
+
+            .nav-link-custom {
+                justify-content: center;
+                padding: 13px 8px;
+            }
+
+            .sidebar-bottom {
+                padding: 20px 0 0;
+                text-align: center;
+            }
+
+            .content {
+                padding: 28px 22px;
+            }
+
+            .topbar {
+                padding: 0 22px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                display: none;
+            }
+
+            .topbar {
+                height: 65px;
+                padding: 0 17px;
+            }
+
+            .content {
+                padding: 23px 15px;
+            }
+
+            .page-heading {
+                flex-direction: column;
+                align-items: stretch;
+                margin-bottom: 22px;
+            }
+
+            .btn-back {
+                align-self: flex-start;
+            }
+
+            .student-banner {
+                padding: 17px;
+            }
+
+            .form-card-header,
+            .form-card-body {
+                padding: 20px 17px;
+            }
+
+            .form-actions {
+                padding: 17px;
+            }
+
+            .form-actions .btn-cancel,
+            .form-actions .btn-save {
+                padding: 10px 12px;
+            }
+
+            .admin-profile .profile-text {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div class="brand-text">
+                <h5>SchoolPortal</h5>
+                <small>Management System</small>
+            </div>
+        </div>
+
+        <div class="nav-heading">MAIN MENU</div>
+
+        <a href="{{ url_for('main.admin_dashboard') }}" class="nav-link-custom">
+            <i class="bi bi-grid-1x2"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <a href="{{ url_for('main.admin_students') }}" class="nav-link-custom active">
+            <i class="bi bi-people"></i>
+            <span>Students</span>
+        </a>
+
+        <a href="{{ url_for('main.admin_attendance') }}" class="nav-link-custom">
+            <i class="bi bi-person-badge"></i>
+            <span>Teachers</span>
+        </a>
+
+        <a href="{{ url_for('main.admin_classes') }}" class="nav-link-custom">
+            <i class="bi bi-building"></i>
+            <span>Classes</span>
+        </a>
+
+        <a href="#" class="nav-link-custom">
+            <i class="bi bi-calendar-check"></i>
+            <span>Attendance</span>
+        </a>
+
+        <a href="#" class="nav-link-custom">
+            <i class="bi bi-journal-text"></i>
+            <span>Examinations</span>
+        </a>
+
+        <div class="sidebar-bottom">
+            <a href="{{ url_for('main.logout') }}">
+                <i class="bi bi-box-arrow-left me-2"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <div>
+                <div class="fw-bold" style="font-size:14px;">Student Management</div>
+                <div class="topbar-label">SchoolPortal / Students / Edit</div>
+            </div>
+
+            <div class="admin-profile">
+                <div class="avatar">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+                <div class="profile-text">
+                    <strong>Administrator</strong>
+                    <small>System Admin</small>
+                </div>
+            </div>
+        </header>
+
+        <section class="content">
+
+            <div class="breadcrumb-custom">
+                <a href="{{ url_for('main.admin_dashboard') }}">Dashboard</a>
+                <i class="bi bi-chevron-right"></i>
+                <a href="{{ url_for('main.admin_students') }}">Students</a>
+                <i class="bi bi-chevron-right"></i>
+                <span>Edit Student</span>
+            </div>
+
+            <div class="page-heading">
+                <div>
+                    <h1>Edit Student</h1>
+                    <p>Update student information and keep school records accurate.</p>
+                </div>
+
+                <a href="{{ url_for('main.admin_students') }}" class="btn-back">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Students
+                </a>
+            </div>
+
+            <div class="student-banner">
+                <div class="student-avatar">
+                    <i class="bi bi-person-vcard"></i>
+                </div>
+                <div>
+                    <h5>{{ student.full_name }}</h5>
+                    <p>Roll Number: {{ student.roll_number }} &nbsp;·&nbsp; Student ID: {{ student.id }}</p>
+                </div>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger d-flex align-items-center gap-2" role="alert">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                <div>{{ error }}</div>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('main.edit_student', student_id=student.id) }}">
+
+                <div class="form-card">
+                    <div class="form-card-header">
+                        <div class="section-icon">
+                            <i class="bi bi-person-lines-fill"></i>
+                        </div>
+                        <div>
+                            <h5>Personal Information</h5>
+                            <p>Update the student's basic details below.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-card-body">
+                        <div class="row g-4">
+
+                            <div class="col-md-6">
+                                <label for="full_name" class="form-label">
+                                    Full Name <span class="required">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="full_name"
+                                    name="full_name"
+                                    class="form-control"
+                                    placeholder="Enter student's full name"
+                                    value="{{ request.form.get('full_name', student.full_name) }}"
+                                    maxlength="150"
+                                    required
+                                >
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="roll_number" class="form-label">
+                                    Roll Number <span class="required">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="roll_number"
+                                    name="roll_number"
+                                    class="form-control"
+                                    placeholder="e.g. STU-001"
+                                    value="{{ request.form.get('roll_number', student.roll_number) }}"
+                                    maxlength="50"
+                                    required
+                                >
+                                <div class="field-help">Each student must have a unique roll number.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="date_of_birth" class="form-label">Date of Birth</label>
+                                <input
+                                    type="date"
+                                    id="date_of_birth"
+                                    name="date_of_birth"
+                                    class="form-control"
+                                    value="{{ request.form.get('date_of_birth', student.date_of_birth.isoformat() if student.date_of_birth else '') }}"
+                                >
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select id="gender" name="gender" class="form-select">
+                                    <option value="">Select gender</option>
+                                    <option value="Male" {% if request.form.get('gender', student.gender or '') == 'Male' %}selected{% endif %}>Male</option>
+                                    <option value="Female" {% if request.form.get('gender', student.gender or '') == 'Female' %}selected{% endif %}>Female</option>
+                                    <option value="Other" {% if request.form.get('gender', student.gender or '') == 'Other' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="class_id" class="form-label">Class</label>
+                                <select id="class_id" name="class_id" class="form-select">
+                                    <option value="">Unassigned</option>
+                                    {% for classroom in classrooms %}
+                                        <option value="{{ classroom.id }}"
+                                            {% if request.form.get('class_id', student.class_id if student.class_id else '')|string == classroom.id|string %}selected{% endif %}>
+                                            {{ classroom.name }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="user_id" class="form-label">Student Login Account</label>
+                                <select id="user_id" name="user_id" class="form-select">
+                                    <option value="">No linked account</option>
+                                    {% for user in users %}<option value="{{ user.id }}" {% if request.form.get('user_id', student.user_id if student.user_id else '')|string == user.id|string %}selected{% endif %}>{{ user.username }}</option>{% endfor %}
+                                </select>
+                                <div class="form-text">Choose an existing unlinked student account, or create one below.</div>
+                            </div>
+                            {% if not student.user_id %}
+                            <div class="col-md-6">
+                                <label for="new_username" class="form-label">Create Username</label>
+                                <input id="new_username" name="new_username" class="form-control" autocomplete="username">
+                            </div>
+                            {% endif %}
+                            <div class="col-md-6">
+                                <label for="new_password" class="form-label">New/Reset Password</label>
+                                <input id="new_password" name="new_password" type="password" class="form-control" autocomplete="new-password" minlength="8">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="confirm_password" class="form-label">Confirm New Password</label>
+                                <input id="confirm_password" name="confirm_password" type="password" class="form-control" autocomplete="new-password" minlength="8">
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-card">
+                    <div class="form-card-header">
+                        <div class="section-icon">
+                            <i class="bi bi-telephone"></i>
+                        </div>
+                        <div>
+                            <h5>Contact Information</h5>
+                            <p>Update the student's contact details and address.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-card-body">
+                        <div class="row g-4">
+
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input
+                                    type="tel"
+                                    id="phone"
+                                    name="phone"
+                                    class="form-control"
+                                    placeholder="e.g. 03001234567"
+                                    value="{{ request.form.get('phone', student.phone or '') }}"
+                                    maxlength="30"
+                                >
+                            </div>
+
+                            <div class="col-12">
+                                <label for="address" class="form-label">Residential Address</label>
+                                <textarea
+                                    id="address"
+                                    name="address"
+                                    class="form-control"
+                                    placeholder="Enter student's residential address"
+                                    maxlength="500"
+                                >{{ request.form.get('address', student.address or '') }}</textarea>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox"
+                                           id="is_active" name="is_active"
+                                           {% if request.method == 'POST' %}
+                                               {% if request.form.get('is_active') == 'on' %}checked{% endif %}
+                                           {% elif student.is_active %}
+                                               checked
+                                           {% endif %}>
+                                    <label class="form-check-label" for="is_active">
+                                        Active student
+                                    </label>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="{{ url_for('main.admin_students') }}" class="btn-cancel">
+                            <i class="bi bi-x-lg"></i>
+                            Cancel
+                        </a>
+
+                        <button type="submit" class="btn-save">
+                            <i class="bi bi-check2-circle"></i>
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+
+            <div class="footer-note">
+                SchoolPortal Management System &copy; 2026
+            </div>
+
+        </section>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

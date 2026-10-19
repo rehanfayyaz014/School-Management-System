@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Attendance | SchoolPortal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { background: #f6f8fb; color: #243044; }
+        .sidebar { min-height: 100vh; background: #17243a; color: #fff; padding: 24px 16px; }
+        .brand { color: #fff; text-decoration: none; font-weight: 700; font-size: 1.2rem; display: block; margin-bottom: 34px; }
+        .side-link { color: #c7d0df; text-decoration: none; display: block; padding: 10px 12px; border-radius: 8px; margin: 4px 0; }
+        .side-link:hover, .side-link.active { color: #fff; background: #2c405f; }
+        .main { padding: 30px; }
+        .card { border: 0; box-shadow: 0 8px 24px rgba(34, 51, 84, .07); }
+        @media (min-width: 768px) { .sidebar { position: fixed; width: 240px; } .main { margin-left: 240px; } }
+    </style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <aside class="col-md-3 col-lg-2 sidebar">
+            <a class="brand" href="{{ url_for('main.teacher_dashboard') }}"><i class="bi bi-mortarboard-fill me-2"></i>SchoolPortal</a>
+            <a class="side-link" href="{{ url_for('main.teacher_dashboard') }}"><i class="bi bi-grid-1x2-fill me-2"></i>Overview</a>
+            <a class="side-link active" href="{{ url_for('main.teacher_attendance') }}"><i class="bi bi-calendar2-check me-2"></i>Attendance</a>
+            <a class="side-link" href="{{ url_for('main.logout') }}"><i class="bi bi-box-arrow-left me-2"></i>Sign Out</a>
+        </aside>
+        <main class="col-md-9 col-lg-10 main">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div><div class="text-uppercase text-secondary small">Teacher Portal</div><h1 class="h3 mb-0">Daily Attendance</h1></div>
+                <span class="badge text-bg-light">Class teacher access only</span>
+            </div>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}<div class="alert alert-{{ category }}">{{ message }}</div>{% endfor %}
+            {% endwith %}
+            {% if error %}<div class="alert alert-warning">{{ error }}</div>{% endif %}
+            <div class="card p-4 mb-4">
+                <form method="get" class="row g-3 align-items-end">
+                    <div class="col-md-6"><label class="form-label">Assigned class</label>
+                        <select name="class_id" class="form-select" required>
+                            <option value="">Select class</option>
+                            {% for item in classrooms %}<option value="{{ item.id }}" {% if classroom and classroom.id == item.id %}selected{% endif %}>{{ item.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4"><label class="form-label">Attendance date</label><input type="date" name="date" class="form-control" value="{{ selected_date }}" required></div>
+                    <div class="col-md-2"><button class="btn btn-primary w-100">Load</button></div>
+                </form>
+            </div>
+            {% if classroom %}
+            <div class="card p-4">
+                <form method="post" action="{{ url_for('main.mark_teacher_attendance') }}">
+                    <input type="hidden" name="class_id" value="{{ classroom.id }}">
+                    <input type="hidden" name="attendance_date" value="{{ selected_date }}">
+                    <div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">{{ classroom.name }} students</h2><button class="btn btn-success"><i class="bi bi-check2-circle me-1"></i>Save attendance</button></div>
+                    {% if students %}
+                    <div class="table-responsive"><table class="table align-middle"><thead><tr><th>Student</th><th>Current status</th></tr></thead><tbody>
+                        {% for student in students %}<tr><td><input type="hidden" name="student_id" value="{{ student.id }}">{{ student.full_name }}</td><td><select name="status_{{ student.id }}" class="form-select" required>{% for value in ['Present', 'Absent', 'Late'] %}<option value="{{ value }}" {% if existing_statuses.get(student.id) == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select></td></tr>{% endfor %}
+                    </tbody></table></div>
+                    {% else %}<div class="text-center text-secondary py-4">No students are currently assigned to this class.</div>{% endif %}
+                </form>
+            </div>
+            {% elif classrooms %}<div class="card p-5 text-center text-secondary">Select one of your assigned classes to mark attendance.</div>
+            {% else %}<div class="alert alert-info">No active class is assigned to your teacher account yet.</div>{% endif %}
+        </main>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classes & Subjects | SchoolPortal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <style>
+        :root { --navy:#111c3a; --blue:#4568f5; --muted:#7b8499; --canvas:#f5f7fc; --border:#edf0f7; }
+        * { box-sizing:border-box; }
+        body { margin:0; background:var(--canvas); color:#202b45; font-family:Inter,"Segoe UI",sans-serif; }
+        .sidebar { width:258px; height:100vh; position:fixed; inset:0 auto 0 0; background:var(--navy); color:#fff; padding:25px 16px; display:flex; flex-direction:column; }
+        .brand { font-size:21px; font-weight:700; padding:0 12px 30px; }
+        .brand i { color:#8195ff; margin-right:8px; }
+        .nav-label { color:#8792b0; font-size:11px; font-weight:700; letter-spacing:1.2px; padding:0 12px; margin-bottom:12px; }
+        .sidebar a { display:flex; align-items:center; gap:12px; padding:12px; margin-bottom:5px; border-radius:9px; text-decoration:none; color:#c2cbe0; font-size:14px; }
+        .sidebar a:hover,.sidebar a.active { background:#26365d; color:#fff; }
+        .sidebar a.active { border-left:3px solid #8195ff; }
+        .sidebar-bottom { margin-top:auto; }
+        .main { margin-left:258px; padding:35px; }
+        .topbar,.section-heading,.card-heading,.row-actions { display:flex; align-items:center; justify-content:space-between; gap:15px; }
+        .topbar { margin-bottom:30px; }
+        h1 { color:var(--navy); font-size:27px; font-weight:750; margin:0 0 6px; }
+        .subtitle,.muted { color:var(--muted); font-size:14px; }
+        .primary-btn,.btn-primary { background:var(--blue); color:#fff; border:0; border-radius:9px; padding:10px 15px; text-decoration:none; }
+        .primary-btn:hover,.btn-primary:hover { background:#3454df; color:#fff; }
+        .card { background:#fff; border:1px solid var(--border); border-radius:15px; box-shadow:0 4px 18px rgba(20,35,75,.035); margin-bottom:24px; overflow:hidden; }
+        .card-heading { padding:20px 24px; border-bottom:1px solid var(--border); }
+        .card-heading h2 { color:var(--navy); font-size:18px; margin:0; }
+        .card-body { padding:22px 24px; }
+        .table { vertical-align:middle; margin:0; }
+        .table th { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+        .status { display:inline-block; padding:6px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+        .status-active { background:#e5f8ef; color:#168452; }
+        .status-inactive { background:#fff0e9; color:#c45b32; }
+        .action-link { border:1px solid #e1e6f0; border-radius:8px; padding:6px 9px; color:var(--navy); text-decoration:none; background:#f7f8fc; }
+        .delete-link { color:#cf3e48; border-color:#ffdede; background:#fff5f5; }
+        .empty { color:var(--muted); text-align:center; padding:25px; }
+        @media (max-width:900px) { .sidebar{width:210px}.main{margin-left:210px;padding:25px 20px} }
+        @media (max-width:650px) { .sidebar{width:65px;padding:20px 8px}.sidebar span,.nav-label,.brand-text{display:none}.main{margin-left:65px;padding:20px 12px}.topbar{align-items:flex-start;flex-direction:column} }
+    </style>
+</head>
+<body>
+<aside class="sidebar">
+    <div class="brand"><i class="bi bi-mortarboard-fill"></i><span class="brand-text">SchoolPortal</span></div>
+    <div class="nav-label">MAIN MENU</div>
+    <a href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+    <a href="{{ url_for('main.admin_students') }}"><i class="bi bi-people"></i><span>Students</span></a>
+    <a href="{{ url_for('main.admin_teachers') }}"><i class="bi bi-person-workspace"></i><span>Teachers</span></a>
+    <a class="active" href="{{ url_for('main.admin_classes') }}"><i class="bi bi-building"></i><span>Classes & Subjects</span></a>
+    <a href="{{ url_for('main.admin_attendance') }}"><i class="bi bi-calendar2-check"></i><span>Attendance</span></a>
+    <a href="{{ url_for('main.admin_exams') }}"><i class="bi bi-clipboard-data"></i><span>Exams &amp; Results</span></a>
+    <a href="{{ url_for('main.admin_fees') }}"><i class="bi bi-wallet2"></i><span>Fee Management</span></a>
+    <div class="sidebar-bottom"><a href="{{ url_for('main.logout') }}"><i class="bi bi-box-arrow-left"></i><span>Logout</span></a></div>
+</aside>
+
+<main class="main">
+    <header class="topbar">
+        <div><h1>Classes & Subjects</h1><p class="subtitle mb-0">Organize classes, subjects, teachers, and student enrollment.</p></div>
+        <div class="d-flex gap-2">
+            <a class="primary-btn" href="{{ url_for('main.add_classroom') }}"><i class="bi bi-plus-lg me-1"></i>Add Class</a>
+            <a class="primary-btn" href="{{ url_for('main.add_subject') }}"><i class="bi bi-plus-lg me-1"></i>Add Subject</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}<div class="alert alert-{{ category }}">{{ message }}</div>{% endfor %}
+    {% endwith %}
+
+    <section class="card">
+        <div class="card-heading"><div><h2><i class="bi bi-building me-2"></i>Classes</h2><span class="muted">{{ classrooms|length }} class(es)</span></div></div>
+        {% if classrooms %}
+        <div class="table-responsive"><table class="table">
+            <thead><tr><th>Class</th><th>Class Teacher</th><th>Students</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+            <tbody>{% for classroom in classrooms %}<tr>
+                <td><strong>{{ classroom.name }}</strong><div class="muted">{{ classroom.description or 'No description' }}</div></td>
+                <td>{{ classroom.class_teacher.full_name if classroom.class_teacher else 'Unassigned' }}</td>
+                <td>{{ classroom.students|length }}</td>
+                <td><span class="status {% if classroom.is_active %}status-active{% else %}status-inactive{% endif %}">{{ 'Active' if classroom.is_active else 'Inactive' }}</span></td>
+                <td class="text-end"><a class="action-link" href="{{ url_for('main.class_details', class_id=classroom.id) }}" title="View class"><i class="bi bi-eye"></i></a> <a class="action-link" href="{{ url_for('main.edit_classroom', class_id=classroom.id) }}" title="Edit class"><i class="bi bi-pencil"></i></a> <form class="d-inline" method="POST" action="{{ url_for('main.delete_classroom', class_id=classroom.id) }}" onsubmit="return confirm('Delete this class and its subject assignments? Students will become unassigned.');"><button class="action-link delete-link" title="Delete class"><i class="bi bi-trash"></i></button></form></td>
+            </tr>{% endfor %}</tbody>
+        </table></div>
+        {% else %}<div class="empty">No classes have been created yet.</div>{% endif %}
+    </section>
+
+    <section class="card">
+        <div class="card-heading"><div><h2><i class="bi bi-journal-bookmark me-2"></i>Subjects</h2><span class="muted">{{ subjects|length }} subject(s)</span></div></div>
+        {% if subjects %}
+        <div class="table-responsive"><table class="table">
+            <thead><tr><th>Subject</th><th>Assignments</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+            <tbody>{% for subject in subjects %}<tr>
+                <td><strong>{{ subject.name }}</strong><div class="muted">{{ subject.description or 'No description' }}</div></td>
+                <td>{% if subject.assignments %}{% for assignment in subject.assignments %}<span class="badge text-bg-light me-1">{{ assignment.classroom.name }} — {{ assignment.teacher.full_name }}</span>{% endfor %}{% else %}<span class="muted">Not assigned</span>{% endif %}</td>
+                <td><span class="status {% if subject.is_active %}status-active{% else %}status-inactive{% endif %}">{{ 'Active' if subject.is_active else 'Inactive' }}</span></td>
+                <td class="text-end"><a class="action-link" href="{{ url_for('main.edit_subject', subject_id=subject.id) }}" title="Edit subject"><i class="bi bi-pencil"></i></a> <form class="d-inline" method="POST" action="{{ url_for('main.delete_subject', subject_id=subject.id) }}" onsubmit="return confirm('Delete this subject and its assignments?');"><button class="action-link delete-link" title="Delete subject"><i class="bi bi-trash"></i></button></form></td>
+            </tr>{% endfor %}</tbody>
+        </table></div>
+        {% else %}<div class="empty">No subjects have been created yet.</div>{% endif %}
+    </section>
+</main>
+</body>
+</html>

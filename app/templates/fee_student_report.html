@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student Fee Report | SchoolPortal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #111c3a;
+      --navy-dark: #0c1429;
+      --blue: #4568f5;
+      --blue-light: #edf1ff;
+      --muted: #7b8499;
+      --border: #dde2ef;
+      --bg-page: #f5f7fc;
+      --white: #ffffff;
+      --sidebar-w: 248px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg-page);
+      color: #202b45;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────────────────── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--navy);
+      color: #fff;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .brand {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      padding: 0 4px;
+    }
+    .brand i { font-size: 1.3rem; color: var(--blue); }
+    .nav-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #5d6f93;
+      padding: 0 8px;
+      margin-bottom: 6px;
+    }
+    .nav-link-custom {
+      color: #b0bcd4;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 3px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-link-custom:hover { background: #1c2b4e; color: #fff; }
+    .nav-link-custom.active { background: var(--blue); color: #fff; }
+    .nav-link-custom i { font-size: 1rem; width: 20px; text-align: center; }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-bottom { border-top: 1px solid #1c2b4e; padding-top: 14px; margin-top: 14px; }
+
+    /* ── Main Canvas ──────────────────────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 32px 36px;
+      min-height: 100vh;
+    }
+    @media (max-width: 768px) {
+      .sidebar { position: static; width: 100%; min-height: auto; }
+      .main { margin-left: 0; padding: 20px 16px; }
+    }
+
+    /* ── Topbar ───────────────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .breadcrumb-trail {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .page-title {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 0;
+    }
+
+    /* ── Panels & Cards ──────────────────────────────────────────────── */
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(17, 28, 58, 0.04);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .panel-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Student Header Card ─────────────────────────────────────────── */
+    .student-badge-card {
+      background: linear-gradient(135deg, #17243a 0%, #20355b 100%);
+      color: #fff;
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      box-shadow: 0 4px 16px rgba(17, 28, 58, 0.12);
+    }
+    .student-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--blue);
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(69, 104, 245, 0.35);
+    }
+    .student-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin: 0 0 4px;
+    }
+    .student-sub {
+      color: #b0bcd4;
+      font-size: 0.88rem;
+    }
+
+    /* ── Summary Stats ───────────────────────────────────────────────── */
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      height: 100%;
+      box-shadow: 0 2px 8px rgba(17, 28, 58, 0.04);
+    }
+    .stat-label {
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+    .stat-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* ── Tables ──────────────────────────────────────────────────────── */
+    .fee-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .fee-table th {
+      background: #f8fafc;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--border);
+    }
+    .fee-table td {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+      vertical-align: middle;
+    }
+    .fee-table tr:last-child td { border-bottom: none; }
+    .fee-table tr:hover td { background: #fbfdff; }
+
+    /* ── Empty State ─────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 56px 24px;
+      color: var(--muted);
+    }
+    .empty-state i {
+      font-size: 3rem;
+      color: #c7d2fe;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .empty-state h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ Sidebar ═════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <a class="brand" href="{{ url_for('main.admin_dashboard') }}">
+    <i class="bi bi-mortarboard-fill"></i>
+    <span>SchoolPortal</span>
+  </a>
+
+  <div class="nav-label">Navigation</div>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_dashboard') }}">
+    <i class="bi bi-grid-1x2-fill"></i> Overview
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_students') }}">
+    <i class="bi bi-people"></i> Students
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_teachers') }}">
+    <i class="bi bi-person-workspace"></i> Teachers
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_classes') }}">
+    <i class="bi bi-journal-bookmark"></i> Classes &amp; Subjects
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_attendance') }}">
+    <i class="bi bi-calendar2-check"></i> Attendance
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_exams') }}">
+    <i class="bi bi-clipboard-data"></i> Exams &amp; Results
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_fees') }}">
+    <i class="bi bi-wallet2"></i> Fee Management
+  </a>
+
+  <div class="nav-label mt-3">Fee Reports</div>
+  <a class="nav-link-custom" href="{{ url_for('main.class_fee_report') }}">
+    <i class="bi bi-people"></i> Class Fee Report
+  </a>
+  <a class="nav-link-custom active" href="{{ url_for('main.admin_student_fee_report') }}">
+    <i class="bi bi-person-lines-fill"></i> Student Fee Report
+  </a>
+
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-bottom">
+    <a class="nav-link-custom" href="{{ url_for('main.home') }}">
+      <i class="bi bi-globe"></i> Public Website
+    </a>
+    <a class="nav-link-custom" href="{{ url_for('main.logout') }}">
+      <i class="bi bi-box-arrow-left"></i> Sign Out
+    </a>
+  </div>
+</aside>
+
+<!-- ═══════ Main ════════════════════════════════════════════════════════ -->
+<main class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb-trail">
+        <a href="{{ url_for('main.admin_dashboard') }}" class="text-decoration-none text-secondary">Overview</a>
+        &rsaquo;
+        <a href="{{ url_for('main.admin_fees') }}" class="text-decoration-none text-secondary">Fee Management</a>
+        &rsaquo; Student Fee Report
+      </div>
+      <h1 class="page-title">Student Fee Report</h1>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <a href="{{ url_for('main.admin_fees') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-wallet2 me-1"></i> Fee Management
+      </a>
+      <a href="{{ url_for('main.class_fee_report') }}" class="btn btn-outline-primary">
+        <i class="bi bi-people me-1"></i> Class Fee Report
+      </a>
+      {% if student %}
+      <a href="{{ url_for('main.admin_student_fee_pdf', student_id=student.id, class_id=class_id) }}"
+         class="btn btn-danger d-inline-flex align-items-center gap-2">
+        <i class="bi bi-file-earmark-pdf-fill"></i> Download Statement PDF
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Flashed Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Filter & Search Panel -->
+  <div class="panel">
+    <h2 class="panel-title">
+      <i class="bi bi-search text-primary"></i> Select Student or Search by Name / Roll Number
+    </h2>
+    <form method="GET" action="{{ url_for('main.admin_student_fee_report') }}" class="row g-3 align-items-end" id="filterForm">
+      <!-- Search Input -->
+      <div class="col-md-3">
+        <label for="search_input" class="form-label fw-medium text-secondary small">Search Student</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input type="text" name="search" id="search_input" class="form-control" placeholder="Name or Roll #" value="{{ search }}">
+        </div>
+      </div>
+
+      <!-- Class Selector -->
+      <div class="col-md-3">
+        <label for="class_select" class="form-label fw-medium text-secondary small">Classroom</label>
+        <select name="class_id" id="class_select" class="form-select">
+          <option value="">-- All Classes --</option>
+          {% for c in classrooms %}
+            <option value="{{ c.id }}" {% if class_id == c.id %}selected{% endif %}>
+              {{ c.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Student Selector (Dependent Dropdown) -->
+      <div class="col-md-3">
+        <label for="student_select" class="form-label fw-medium text-secondary small">Enrolled Student</label>
+        <select name="student_id" id="student_select" class="form-select" {% if not class_id and not students_in_class %}disabled{% endif %}>
+          <option value="">-- Choose Student --</option>
+          {% for s in students_in_class %}
+            <option value="{{ s.id }}" {% if student_id == s.id %}selected{% endif %}>
+              {{ s.full_name }} (Roll #{{ s.roll_number }})
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Status Filter -->
+      <div class="col-md-2">
+        <label for="status_select" class="form-label fw-medium text-secondary small">Status</label>
+        <select name="status" id="status_select" class="form-select">
+          <option value="all" {% if status == 'all' %}selected{% endif %}>All</option>
+          <option value="Paid" {% if status == 'Paid' %}selected{% endif %}>Paid</option>
+          <option value="Partial" {% if status == 'Partial' %}selected{% endif %}>Partial</option>
+          <option value="Unpaid" {% if status == 'Unpaid' %}selected{% endif %}>Unpaid</option>
+          <option value="Overdue" {% if status == 'Overdue' %}selected{% endif %}>Overdue</option>
+        </select>
+      </div>
+
+      <!-- Submit & Reset -->
+      <div class="col-md-1">
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-arrow-repeat"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- State 1: A specific student is selected -->
+  {% if student %}
+    <!-- Student Header Card -->
+    <div class="student-badge-card">
+      <div class="d-flex align-items-center gap-3">
+        <div class="student-avatar">
+          {{ student.full_name[:1]|upper }}
+        </div>
+        <div>
+          <h2 class="student-name">{{ student.full_name }}</h2>
+          <div class="student-sub">
+            Roll No: <strong>#{{ student.roll_number }}</strong> &bull;
+            Class: <strong>{{ classroom.name if classroom else (student.classroom.name if student.classroom else 'None') }}</strong>
+            {% if student.phone %} &bull; Phone: <strong>{{ student.phone }}</strong>{% endif %}
+          </div>
+        </div>
+      </div>
+      <div class="text-end">
+        <span class="badge fs-6 px-3 py-2 text-bg-{{ 'success' if student_summary.status == 'Paid' else 'warning' if student_summary.status == 'Partial' else 'danger' if student_summary.status == 'Overdue' else 'secondary' if student_summary.status == 'Unpaid' else 'light border text-muted' }}">
+          {{ student_summary.status }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Summary Metrics -->
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Total Assessed</div>
+          <div class="stat-value text-primary">{{ "{:,.2f}".format(student_summary.total_assessed) }}</div>
+          <div class="stat-desc"><i class="bi bi-receipt me-1"></i>{{ student_summary.invoices_count }} invoice(s) billed</div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Total Paid</div>
+          <div class="stat-value text-success">{{ "{:,.2f}".format(student_summary.total_paid) }}</div>
+          <div class="stat-desc"><i class="bi bi-check2-circle me-1"></i>{{ student_summary.payments_count }} payment receipt(s)</div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Remaining Balance</div>
+          <div class="stat-value text-danger">{{ "{:,.2f}".format(student_summary.total_balance) }}</div>
+          <div class="stat-desc">
+            {% if student_summary.total_balance <= 0 %}
+              <span class="text-success fw-medium"><i class="bi bi-check-all me-1"></i>All accounts settled</span>
+            {% else %}
+              <span class="text-danger fw-medium"><i class="bi bi-exclamation-circle me-1"></i>Outstanding dues pending</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Payment Ratio</div>
+          {% set p_ratio = ((student_summary.total_paid / student_summary.total_assessed * 100) if student_summary.total_assessed > 0 else 0) %}
+          <div class="stat-value text-info">{{ "{:.1f}%".format(p_ratio) }}</div>
+          <div class="stat-desc">Clearance percentage</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Invoices Table Panel -->
+    <div class="panel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="panel-title mb-0">
+          <i class="bi bi-file-earmark-text text-primary"></i> Fee Invoices &amp; Charges
+        </h2>
+        <span class="badge text-bg-light border text-secondary px-3 py-2">
+          {{ fee_records|length }} record(s)
+        </span>
+      </div>
+
+      {% if fee_records %}
+        <div class="table-responsive">
+          <table class="fee-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Billing Month</th>
+                <th>Due Date</th>
+                <th class="text-end">Assessed Amount</th>
+                <th class="text-end">Paid Amount</th>
+                <th class="text-end">Balance</th>
+                <th class="text-center">Status</th>
+                <th class="text-end">Payment</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for fee in fee_records %}
+                <tr>
+                  <td>
+                    <div class="fw-semibold text-dark">{{ fee.title }}</div>
+                    {% if fee.notes %}<small class="text-secondary">{{ fee.notes }}</small>{% endif %}
+                  </td>
+                  <td>{{ fee.billing_month.strftime('%Y-%m') }}</td>
+                  <td>{{ fee.due_date.strftime('%Y-%m-%d') }}</td>
+                  <td class="text-end fw-medium">{{ "{:,.2f}".format(fee.amount) }}</td>
+                  <td class="text-end text-success fw-medium">{{ "{:,.2f}".format(fee.paid_amount) }}</td>
+                  <td class="text-end fw-semibold {{ 'text-danger' if fee.balance > 0 else 'text-muted' }}">
+                    {{ "{:,.2f}".format(fee.balance) }}
+                  </td>
+                  <td class="text-center">
+                    <span class="badge text-bg-{{ 'success' if fee.status == 'Paid' else 'warning' if fee.status == 'Partial' else 'danger' if fee.status == 'Overdue' else 'secondary' }}">
+                      {{ fee.status }}
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    {% if fee.balance > 0 %}
+                      <form method="post" action="{{ url_for('main.record_fee_payment', fee_id=fee.id) }}" class="d-inline-flex gap-1 justify-content-end">
+                        <input type="number" name="amount" min="0.01" max="{{ fee.balance }}" step="0.01" placeholder="Amount" class="form-control form-control-sm" style="max-width: 90px;" required>
+                        <input type="hidden" name="payment_date" value="{{ date.today().isoformat() if date else '' }}">
+                        <select name="payment_method" class="form-select form-select-sm" style="max-width: 110px;">
+                          <option>Cash</option>
+                          <option>Bank Transfer</option>
+                          <option>Card</option>
+                          <option>Online</option>
+                        </select>
+                        <button class="btn btn-sm btn-outline-success">Pay</button>
+                      </form>
+                    {% else %}
+                      <span class="badge text-bg-light border text-success"><i class="bi bi-check-circle-fill me-1"></i>Settled</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state py-4">
+          <i class="bi bi-receipt text-secondary fs-2 d-block mb-2"></i>
+          <p class="mb-0">No fee records found for the selected status filter.</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Payment Receipts Ledger Panel -->
+    <div class="panel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="panel-title mb-0">
+          <i class="bi bi-clock-history text-primary"></i> Payment Transactions &amp; Receipts
+        </h2>
+        <span class="badge text-bg-light border text-secondary px-3 py-2">
+          {{ payments|length }} transaction(s)
+        </span>
+      </div>
+
+      {% if payments %}
+        <div class="table-responsive">
+          <table class="fee-table">
+            <thead>
+              <tr>
+                <th>Receipt #</th>
+                <th>Payment Date</th>
+                <th>Fee Title</th>
+                <th>Method</th>
+                <th class="text-end">Amount Paid</th>
+                <th>Recorded By</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in payments %}
+                <tr>
+                  <td>
+                    <span class="badge text-bg-light border text-primary fw-bold">
+                      {{ p.receipt_reference or "RCP-{:04d}".format(p.id) }}
+                    </span>
+                  </td>
+                  <td>{{ p.payment_date.strftime('%Y-%m-%d') if p.payment_date else '--' }}</td>
+                  <td>{{ p.fee_record.title if p.fee_record else '--' }}</td>
+                  <td>
+                    <span class="badge text-bg-secondary">{{ p.payment_method }}</span>
+                  </td>
+                  <td class="text-end fw-bold text-success">
+                    {{ "{:,.2f}".format(p.amount) }}
+                  </td>
+                  <td>
+                    <small class="text-secondary">{{ p.received_by.username if p.received_by else '--' }}</small>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state py-4">
+          <i class="bi bi-wallet text-secondary fs-2 d-block mb-2"></i>
+          <p class="mb-0">No payment receipts have been recorded yet for this student.</p>
+        </div>
+      {% endif %}
+    </div>
+
+  <!-- State 2: Search results list -->
+  {% elif search_results %}
+    <div class="panel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="panel-title mb-0">
+          <i class="bi bi-search text-primary"></i> Search Results for "{{ search }}"
+        </h2>
+        <span class="badge text-bg-light border text-secondary px-3 py-2">
+          {{ search_results|length }} student(s) found
+        </span>
+      </div>
+
+      <div class="table-responsive">
+        <table class="fee-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Roll Number</th>
+              <th>Class</th>
+              <th class="text-center">Invoices</th>
+              <th class="text-end">Total Assessed</th>
+              <th class="text-end">Total Paid</th>
+              <th class="text-end">Balance</th>
+              <th class="text-center">Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in search_results %}
+              <tr>
+                <td>
+                  <div class="fw-semibold text-dark">{{ item.student.full_name }}</div>
+                </td>
+                <td>
+                  <span class="badge text-bg-light border text-secondary">#{{ item.student.roll_number }}</span>
+                </td>
+                <td>
+                  {{ item.classroom.name if item.classroom else 'Unassigned' }}
+                </td>
+                <td class="text-center">{{ item.invoices_count }}</td>
+                <td class="text-end fw-medium">{{ "{:,.2f}".format(item.total_assessed) }}</td>
+                <td class="text-end text-success fw-medium">{{ "{:,.2f}".format(item.total_paid) }}</td>
+                <td class="text-end fw-semibold {{ 'text-danger' if item.total_balance > 0 else 'text-muted' }}">
+                  {{ "{:,.2f}".format(item.total_balance) }}
+                </td>
+                <td class="text-center">
+                  <span class="badge text-bg-{{ 'success' if item.status == 'Paid' else 'warning' if item.status == 'Partial' else 'danger' if item.status == 'Overdue' else 'secondary' if item.status == 'Unpaid' else 'light border text-muted' }}">
+                    {{ item.status }}
+                  </span>
+                </td>
+                <td class="text-end">
+                  <div class="d-inline-flex gap-1">
+                    <a href="{{ url_for('main.admin_student_fee_report', student_id=item.student.id, class_id=item.student.class_id) }}"
+                       class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-eye me-1"></i> Statement
+                    </a>
+                    <a href="{{ url_for('main.admin_student_fee_pdf', student_id=item.student.id, class_id=item.student.class_id) }}"
+                       class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-file-earmark-pdf"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  <!-- State 3: Prompt/Empty State -->
+  {% else %}
+    <div class="panel empty-state">
+      <i class="bi bi-person-lines-fill"></i>
+      <h3>Select a Class &amp; Student or Search by Name</h3>
+      <p class="mb-0">Choose a class above to load enrolled students, or enter a name or roll number in the search bar to locate an individual student statement.</p>
+    </div>
+  {% endif %}
+</main>
+
+<!-- Client-side script for dynamic student dropdown -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const classSelect = document.getElementById("class_select");
+  const studentSelect = document.getElementById("student_select");
+  const currentStudentId = "{{ student_id or '' }}";
+
+  if (classSelect && studentSelect) {
+    classSelect.addEventListener("change", function () {
+      const classId = this.value;
+      if (!classId) {
+        studentSelect.innerHTML = '<option value="">-- Choose Student --</option>';
+        studentSelect.disabled = true;
+        return;
+      }
+      studentSelect.disabled = true;
+      studentSelect.innerHTML = '<option value="">Loading students...</option>';
+
+      fetch(`/api/classes/${classId}/students`)
+        .then((response) => {
+          if (!response.ok) throw new Error("Network response was not ok");
+          return response.json();
+        })
+        .then((students) => {
+          let options = '<option value="">-- Choose Student --</option>';
+          students.forEach((s) => {
+            const selected = (currentStudentId && String(s.id) === String(currentStudentId)) ? "selected" : "";
+            options += `<option value="${s.id}" ${selected}>${s.full_name} (Roll #${s.roll_number})</option>`;
+          });
+          studentSelect.innerHTML = options;
+          studentSelect.disabled = false;
+        })
+        .catch((err) => {
+          console.error("Failed to load students:", err);
+          studentSelect.innerHTML = '<option value="">-- Error loading students --</option>';
+        });
+    });
+  }
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class Fee Report | SchoolPortal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #111c3a;
+      --navy-dark: #0c1429;
+      --blue: #4568f5;
+      --blue-light: #edf1ff;
+      --muted: #7b8499;
+      --border: #dde2ef;
+      --bg-page: #f5f7fc;
+      --white: #ffffff;
+      --sidebar-w: 248px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      background: var(--bg-page);
+      color: #202b45;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────────────────── */
+    .sidebar {
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--navy);
+      color: #fff;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .brand {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      padding: 0 4px;
+    }
+    .brand i { font-size: 1.3rem; color: var(--blue); }
+    .nav-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #5d6f93;
+      padding: 0 8px;
+      margin-bottom: 6px;
+    }
+    .nav-link-custom {
+      color: #b0bcd4;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 3px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-link-custom:hover { background: #1c2b4e; color: #fff; }
+    .nav-link-custom.active { background: var(--blue); color: #fff; }
+    .nav-link-custom i { font-size: 1rem; width: 20px; text-align: center; }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-bottom { border-top: 1px solid #1c2b4e; padding-top: 14px; margin-top: 14px; }
+
+    /* ── Main Canvas ──────────────────────────────────────────────────── */
+    .main {
+      margin-left: var(--sidebar-w);
+      padding: 32px 36px;
+      min-height: 100vh;
+    }
+    @media (max-width: 768px) {
+      .sidebar { position: static; width: 100%; min-height: auto; }
+      .main { margin-left: 0; padding: 20px 16px; }
+    }
+
+    /* ── Topbar ───────────────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .breadcrumb-trail {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .page-title {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 0;
+    }
+
+    /* ── Panels & Cards ──────────────────────────────────────────────── */
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(17, 28, 58, 0.04);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .panel-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Summary Stats Row ───────────────────────────────────────────── */
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      height: 100%;
+      box-shadow: 0 2px 8px rgba(17, 28, 58, 0.04);
+    }
+    .stat-label {
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+    .stat-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* ── Progress Bar ─────────────────────────────────────────────────── */
+    .collection-progress-wrap {
+      background: #f1f4fb;
+      border-radius: 8px;
+      overflow: hidden;
+      height: 10px;
+      margin-top: 8px;
+    }
+    .collection-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #4568f5, #22c55e);
+      border-radius: 8px;
+      transition: width 0.4s ease;
+    }
+
+    /* ── Table Styling ────────────────────────────────────────────────── */
+    .fee-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    .fee-table th {
+      background: #f8fafc;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--border);
+    }
+    .fee-table td {
+      padding: 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+      vertical-align: middle;
+    }
+    .fee-table tr:last-child td { border-bottom: none; }
+    .fee-table tr:hover td { background: #fbfdff; }
+
+    /* ── Empty State ─────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 56px 24px;
+      color: var(--muted);
+    }
+    .empty-state i {
+      font-size: 3rem;
+      color: #c7d2fe;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .empty-state h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ Sidebar ═════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <a class="brand" href="{{ url_for('main.admin_dashboard') }}">
+    <i class="bi bi-mortarboard-fill"></i>
+    <span>SchoolPortal</span>
+  </a>
+
+  <div class="nav-label">Navigation</div>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_dashboard') }}">
+    <i class="bi bi-grid-1x2-fill"></i> Overview
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_students') }}">
+    <i class="bi bi-people"></i> Students
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_teachers') }}">
+    <i class="bi bi-person-workspace"></i> Teachers
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_classes') }}">
+    <i class="bi bi-journal-bookmark"></i> Classes &amp; Subjects
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_attendance') }}">
+    <i class="bi bi-calendar2-check"></i> Attendance
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_exams') }}">
+    <i class="bi bi-clipboard-data"></i> Exams &amp; Results
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_fees') }}">
+    <i class="bi bi-wallet2"></i> Fee Management
+  </a>
+
+  <div class="nav-label mt-3">Fee Reports</div>
+  <a class="nav-link-custom active" href="{{ url_for('main.class_fee_report') }}">
+    <i class="bi bi-people"></i> Class Fee Report
+  </a>
+  <a class="nav-link-custom" href="{{ url_for('main.admin_student_fee_report') }}">
+    <i class="bi bi-person-lines-fill"></i> Student Fee Report
+  </a>
+
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-bottom">
+    <a class="nav-link-custom" href="{{ url_for('main.home') }}">
+      <i class="bi bi-globe"></i> Public Website
+    </a>
+    <a class="nav-link-custom" href="{{ url_for('main.logout') }}">
+      <i class="bi bi-box-arrow-left"></i> Sign Out
+    </a>
+  </div>
+</aside>
+
+<!-- ═══════ Main ════════════════════════════════════════════════════════ -->
+<main class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb-trail">
+        <a href="{{ url_for('main.admin_dashboard') }}" class="text-decoration-none text-secondary">Overview</a>
+        &rsaquo;
+        <a href="{{ url_for('main.admin_fees') }}" class="text-decoration-none text-secondary">Fee Management</a>
+        &rsaquo; Class Fee Report
+      </div>
+      <h1 class="page-title">Class Fee Report</h1>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <a href="{{ url_for('main.admin_fees') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-wallet2 me-1"></i> Fee Management
+      </a>
+      <a href="{{ url_for('main.admin_student_fee_report') }}" class="btn btn-outline-primary">
+        <i class="bi bi-person-lines-fill me-1"></i> Student Fee Report
+      </a>
+      {% if classroom and class_id %}
+      <a href="{{ url_for('main.admin_class_fee_pdf', class_id=class_id, billing_month=billing_month) }}"
+         class="btn btn-danger d-inline-flex align-items-center gap-2">
+        <i class="bi bi-file-earmark-pdf-fill"></i> Download Class PDF
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Flashed Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- Filter Panel -->
+  <div class="panel">
+    <h2 class="panel-title">
+      <i class="bi bi-funnel text-primary"></i> Select Class &amp; Status Filters
+    </h2>
+    <form method="GET" action="{{ url_for('main.class_fee_report') }}" class="row g-3 align-items-end">
+      <div class="col-md-4">
+        <label for="class_select" class="form-label fw-medium text-secondary small">Classroom</label>
+        <select name="class_id" id="class_select" class="form-select" required>
+          <option value="">-- Choose Class --</option>
+          {% for c in classrooms %}
+            <option value="{{ c.id }}" {% if class_id == c.id %}selected{% endif %}>
+              {{ c.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label for="status_select" class="form-label fw-medium text-secondary small">Payment Status</label>
+        <select name="status" id="status_select" class="form-select">
+          <option value="all" {% if status == 'all' %}selected{% endif %}>All statuses</option>
+          <option value="Paid" {% if status == 'Paid' %}selected{% endif %}>Paid (Fully settled)</option>
+          <option value="Partial" {% if status == 'Partial' %}selected{% endif %}>Partially Paid</option>
+          <option value="Unpaid" {% if status == 'Unpaid' %}selected{% endif %}>Unpaid (No payment yet)</option>
+          <option value="Overdue" {% if status == 'Overdue' %}selected{% endif %}>Overdue</option>
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <label for="billing_month" class="form-label fw-medium text-secondary small">Billing Month (Optional)</label>
+        <input type="month" name="billing_month" id="billing_month" class="form-control" value="{{ billing_month }}">
+      </div>
+
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100 d-inline-flex align-items-center justify-content-center gap-1">
+          <i class="bi bi-search"></i> View Report
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Content State -->
+  {% if not class_id %}
+    <div class="panel empty-state">
+      <i class="bi bi-cash-stack"></i>
+      <h3>Select a Class to View Fee Summary</h3>
+      <p class="mb-0">Choose a classroom from the dropdown above to inspect enrolled students, assessed tuition, collected payments, and outstanding balances.</p>
+    </div>
+
+  {% elif classroom %}
+    <!-- Summary Cards Row -->
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Enrolled Students</div>
+          <div class="stat-value text-primary">{{ class_summary.total_students }}</div>
+          <div class="stat-desc">
+            <i class="bi bi-people me-1"></i>{{ class_summary.matching_students }} student(s) in filter view
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Total Assessed</div>
+          <div class="stat-value">{{ "{:,.2f}".format(class_summary.total_assessed) }}</div>
+          <div class="stat-desc">
+            <i class="bi bi-receipt me-1"></i>{{ class_summary.total_invoices }} total fee invoice(s)
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Total Collected</div>
+          <div class="stat-value text-success">{{ "{:,.2f}".format(class_summary.total_paid) }}</div>
+          <div class="stat-desc">
+            <i class="bi bi-check-circle me-1"></i>Settled through receipts
+          </div>
+        </div>
+      </div>
+
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Outstanding Balance</div>
+          <div class="stat-value text-danger">{{ "{:,.2f}".format(class_summary.total_balance) }}</div>
+          <div class="stat-desc">
+            Collection rate: <strong>{{ "{:.1f}%".format(class_summary.collection_rate) }}</strong>
+          </div>
+          <div class="collection-progress-wrap">
+            <div class="collection-progress-bar" style="width: {{ [class_summary.collection_rate, 100]|min }}%;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Breakdown Panel -->
+    <div class="panel">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="panel-title mb-0">
+          <i class="bi bi-table text-primary"></i> Student Fee Breakdown -- {{ classroom.name }}
+        </h2>
+        <span class="badge text-bg-light border text-secondary px-3 py-2">
+          {{ student_fee_data|length }} student(s)
+        </span>
+      </div>
+
+      {% if student_fee_data %}
+        <div class="table-responsive">
+          <table class="fee-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Roll Number</th>
+                <th class="text-center">Invoices</th>
+                <th class="text-end">Total Assessed</th>
+                <th class="text-end">Total Paid</th>
+                <th class="text-end">Outstanding Balance</th>
+                <th class="text-center">Status</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in student_fee_data %}
+                <tr>
+                  <td>
+                    <div class="fw-semibold text-dark">{{ item.student.full_name }}</div>
+                  </td>
+                  <td>
+                    <span class="badge text-bg-light border text-secondary">#{{ item.student.roll_number }}</span>
+                  </td>
+                  <td class="text-center">
+                    {{ item.invoices_count }}
+                  </td>
+                  <td class="text-end fw-medium">
+                    {{ "{:,.2f}".format(item.total_assessed) }}
+                  </td>
+                  <td class="text-end text-success fw-medium">
+                    {{ "{:,.2f}".format(item.total_paid) }}
+                  </td>
+                  <td class="text-end fw-semibold {{ 'text-danger' if item.total_balance > 0 else 'text-muted' }}">
+                    {{ "{:,.2f}".format(item.total_balance) }}
+                  </td>
+                  <td class="text-center">
+                    <span class="badge text-bg-{{ 'success' if item.status == 'Paid' else 'warning' if item.status == 'Partial' else 'danger' if item.status == 'Overdue' else 'secondary' if item.status == 'Unpaid' else 'light border text-muted' }}">
+                      {{ item.status }}
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <div class="d-inline-flex gap-1">
+                      <a href="{{ url_for('main.admin_student_fee_report', class_id=class_id, student_id=item.student.id) }}"
+                         class="btn btn-sm btn-outline-primary" title="View Student Statement">
+                        <i class="bi bi-eye"></i> Statement
+                      </a>
+                      <a href="{{ url_for('main.admin_student_fee_pdf', class_id=class_id, student_id=item.student.id) }}"
+                         class="btn btn-sm btn-outline-danger" title="Download PDF">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state py-4">
+          <i class="bi bi-inbox text-secondary fs-2 d-block mb-2"></i>
+          <p class="mb-0">No students match the selected status filter in {{ classroom.name }}.</p>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

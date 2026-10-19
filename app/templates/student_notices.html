@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>School Notices | SchoolPortal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f6f8fb; color: #243044; }
+        .main { max-width: 900px; margin: auto; padding: 30px; }
+        .card { border: 0; box-shadow: 0 8px 24px rgba(34, 51, 84, .07); }
+    </style>
+</head>
+<body>
+<main class="main">
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <div class="text-uppercase text-secondary small">Student Portal</div>
+            <h1 class="h3 mb-0">School Notices</h1>
+        </div>
+        <a class="btn btn-outline-secondary" href="{{ url_for('main.student_dashboard') }}">Dashboard</a>
+    </div>
+    <div class="card p-5 text-center">
+        <h2 class="h5">No notices available</h2>
+        <p class="text-secondary mb-0">School notices will appear here when the administration publishing feature is available.</p>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fee Management | SchoolPortal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background: #f6f8fb; color: #243044; }
+    .sidebar { min-height: 100vh; background: #17243a; color: #fff; padding: 24px 16px; }
+    .brand { color: #fff; text-decoration: none; font-weight: 700; font-size: 1.2rem; display: block; margin-bottom: 34px; }
+    .side-link { color: #c7d0df; text-decoration: none; display: block; padding: 10px 12px; border-radius: 8px; margin: 4px 0; }
+    .side-link:hover, .side-link.active { color: #fff; background: #2c405f; }
+    .main { padding: 30px; }
+    .card { border: 0; box-shadow: 0 8px 24px rgba(34,51,84,.07); border-radius: 12px; }
+    .stat-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #7b8499; margin-bottom: 4px; }
+    .stat-val { font-size: 1.6rem; font-weight: 800; color: #111c3a; }
+    @media (min-width: 768px) { .sidebar { position: fixed; width: 240px; } .main { margin-left: 240px; } }
+  </style>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <aside class="col-md-3 col-lg-2 sidebar">
+      <a class="brand" href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-mortarboard-fill me-2"></i>SchoolPortal</a>
+      <a class="side-link" href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-grid-1x2-fill me-2"></i>Overview</a>
+      <a class="side-link active" href="{{ url_for('main.admin_fees') }}"><i class="bi bi-wallet2 me-2"></i>Fee Management</a>
+      <a class="side-link" href="{{ url_for('main.class_fee_report') }}"><i class="bi bi-people me-2"></i>Class Fee Report</a>
+      <a class="side-link" href="{{ url_for('main.admin_student_fee_report') }}"><i class="bi bi-person-lines-fill me-2"></i>Student Fee Report</a>
+      <a class="side-link" href="{{ url_for('main.admin_attendance') }}"><i class="bi bi-calendar2-check me-2"></i>Attendance</a>
+      <a class="side-link" href="{{ url_for('main.admin_exams') }}"><i class="bi bi-clipboard-data me-2"></i>Exams &amp; Results</a>
+      <a class="side-link" href="{{ url_for('main.logout') }}"><i class="bi bi-box-arrow-left me-2"></i>Sign Out</a>
+    </aside>
+
+    <main class="col-md-9 col-lg-10 main">
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+          <div class="text-uppercase text-secondary small">School Management</div>
+          <h1 class="h3 mb-0">Fee Management</h1>
+        </div>
+        <div class="d-flex gap-2">
+          <a class="btn btn-outline-primary" href="{{ url_for('main.class_fee_report') }}">
+            <i class="bi bi-people me-1"></i> Class Fee Report
+          </a>
+          <a class="btn btn-outline-primary" href="{{ url_for('main.admin_student_fee_report') }}">
+            <i class="bi bi-person-lines-fill me-1"></i> Student Fee Report
+          </a>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endwith %}
+
+      <!-- Overview Stats Cards -->
+      <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+          <div class="card p-3">
+            <div class="stat-label">Total Assessed</div>
+            <div class="stat-val text-primary">{{ "{:,.2f}".format(overview.total_assessed) if overview else "0.00" }}</div>
+            <div class="small text-secondary mt-1"><i class="bi bi-receipt me-1"></i>{{ overview.total_records if overview else 0 }} total fee records</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="card p-3">
+            <div class="stat-label">Total Collected</div>
+            <div class="stat-val text-success">{{ "{:,.2f}".format(overview.total_paid) if overview else "0.00" }}</div>
+            <div class="small text-secondary mt-1"><i class="bi bi-check-circle me-1"></i>Paid across all invoices</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="card p-3">
+            <div class="stat-label">Outstanding Balance</div>
+            <div class="stat-val text-danger">{{ "{:,.2f}".format(overview.total_balance) if overview else "0.00" }}</div>
+            <div class="small text-secondary mt-1"><i class="bi bi-hourglass-split me-1"></i>Unpaid &amp; partial dues</div>
+          </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+          <div class="card p-3">
+            <div class="stat-label">Collection Rate</div>
+            {% set rate = ((overview.total_paid / overview.total_assessed * 100) if (overview and overview.total_assessed > 0) else 0) %}
+            <div class="stat-val text-info">{{ "{:.1f}%".format(rate) }}</div>
+            <div class="small text-secondary mt-1"><i class="bi bi-pie-chart me-1"></i>Percentage of billed fees</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assign Fee Form -->
+      <div class="card p-4 mb-4">
+        <h2 class="h5 mb-3"><i class="bi bi-plus-circle me-1 text-primary"></i> Assign Fee</h2>
+        <form method="post" class="row g-3">
+          <div class="col-md-3">
+            <label class="form-label fw-medium small">Student</label>
+            <select name="student_id" class="form-select" required>
+              <option value="">Select student</option>
+              {% for student in students %}
+                <option value="{{ student.id }}">{{ student.full_name }} ({{ student.roll_number }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-medium small">Title</label>
+            <input name="title" class="form-control" placeholder="Tuition Fee" required>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-medium small">Billing Month</label>
+            <input type="month" name="billing_month" class="form-control" required>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-medium small">Amount</label>
+            <input type="number" step="0.01" min="0.01" name="amount" class="form-control" placeholder="0.00" required>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label fw-medium small">Due Date</label>
+            <input type="date" name="due_date" class="form-control" required>
+          </div>
+          <div class="col-md-1 d-flex align-items-end">
+            <button class="btn btn-primary w-100">Add</button>
+          </div>
+          <div class="col-12">
+            <input name="notes" class="form-control" placeholder="Optional notes">
+          </div>
+        </form>
+      </div>
+
+      <!-- Filter Form -->
+      <div class="card p-4 mb-4">
+        <form method="get" class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label fw-medium small">Class</label>
+            <select name="class_id" class="form-select">
+              <option value="">All classes</option>
+              {% for classroom in classrooms %}
+                <option value="{{ classroom.id }}" {% if class_id == classroom.id %}selected{% endif %}>{{ classroom.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label fw-medium small">Status</label>
+            <select name="status" class="form-select">
+              <option value="all">All statuses</option>
+              {% for value in ['Paid', 'Partial', 'Unpaid', 'Overdue'] %}
+                <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ value }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-4 d-flex gap-2">
+            <button class="btn btn-outline-primary flex-grow-1"><i class="bi bi-funnel me-1"></i> Filter</button>
+            <a href="{{ url_for('main.admin_fees') }}" class="btn btn-outline-secondary">Reset</a>
+          </div>
+        </form>
+      </div>
+
+      <!-- Fee Records Table -->
+      <div class="card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h2 class="h5 mb-0">Fee Records</h2>
+          <span class="badge text-bg-light border text-secondary">{{ fees|length }} record(s)</span>
+        </div>
+        {% if fees %}
+          <div class="table-responsive">
+            <table class="table align-middle table-hover">
+              <thead class="table-light">
+                <tr>
+                  <th>Student</th>
+                  <th>Fee</th>
+                  <th>Due</th>
+                  <th>Amount</th>
+                  <th>Paid</th>
+                  <th>Balance</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for fee in fees %}
+                  <tr>
+                    <td>
+                      <a href="{{ url_for('main.admin_student_fee_report', student_id=fee.student.id) }}" class="fw-semibold text-decoration-none">
+                        {{ fee.student.full_name }}
+                      </a>
+                      <br><small class="text-secondary">Roll #{{ fee.student.roll_number }}</small>
+                    </td>
+                    <td>
+                      {{ fee.title }}<br>
+                      <small class="text-secondary">{{ fee.billing_month.strftime('%Y-%m') }}</small>
+                    </td>
+                    <td>{{ fee.due_date }}</td>
+                    <td class="fw-medium">{{ "{:,.2f}".format(fee.amount) }}</td>
+                    <td class="text-success">{{ "{:,.2f}".format(fee.paid_amount) }}</td>
+                    <td class="fw-semibold {{ 'text-danger' if fee.balance > 0 else 'text-muted' }}">
+                      {{ "{:,.2f}".format(fee.balance) }}
+                    </td>
+                    <td>
+                      <span class="badge text-bg-{{ 'success' if fee.status == 'Paid' else 'warning' if fee.status == 'Partial' else 'danger' if fee.status == 'Overdue' else 'secondary' }}">
+                        {{ fee.status }}
+                      </span>
+                    </td>
+                    <td>
+                      {% if fee.balance > 0 %}
+                        <form method="post" action="{{ url_for('main.record_fee_payment', fee_id=fee.id) }}" class="d-flex gap-1">
+                          <input type="number" name="amount" min="0.01" max="{{ fee.balance }}" step="0.01" placeholder="Amount" class="form-control form-control-sm" style="max-width: 100px;" required>
+                          <input type="hidden" name="payment_date" value="{{ today }}">
+                          <select name="payment_method" class="form-select form-select-sm" style="max-width: 130px;">
+                            <option>Cash</option>
+                            <option>Bank Transfer</option>
+                            <option>Card</option>
+                            <option>Online</option>
+                          </select>
+                          <button class="btn btn-sm btn-outline-success">Pay</button>
+                        </form>
+                      {% else %}
+                        <span class="text-success small fw-medium"><i class="bi bi-check-circle-fill me-1"></i>Settled</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center text-secondary py-5">
+            <i class="bi bi-wallet2 text-secondary display-6 d-block mb-2"></i>
+            No fee records found for the selected filters.
+          </div>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

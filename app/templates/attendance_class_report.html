@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Class Attendance Report | SchoolPortal</title>
+  <meta name="description" content="Admin class-wise monthly attendance performance and student roster report.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --navy:      #111c3a;
+      --blue:      #4568f5;
+      --blue-lt:   #edf1ff;
+      --muted:     #7b8499;
+      --canvas:    #f5f7fc;
+      --white:     #ffffff;
+      --border:    #edf0f7;
+      --active-bg: #26365d;
+      --active-bd: #8195ff;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", sans-serif;
+      background: var(--canvas);
+      color: #202b45;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────────────── */
+    .sidebar {
+      width: 260px;
+      position: fixed;
+      top: 0; left: 0;
+      height: 100vh;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      padding: 28px 16px 20px;
+      overflow-y: auto;
+      z-index: 100;
+    }
+    .brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .nav-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #5d708f;
+      padding: 0 10px;
+      margin-bottom: 6px;
+    }
+    .sidebar a.nav-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #c2cbe0;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 2px;
+      transition: background .15s, color .15s;
+    }
+    .sidebar a.nav-link:hover { background: #1e2f52; color: #fff; }
+    .sidebar a.nav-link.active {
+      background: var(--active-bg);
+      color: #fff;
+      border-left: 3px solid var(--active-bd);
+    }
+    .sidebar-spacer { flex: 1; }
+    .sidebar-bottom a.nav-link { color: #8ea0bc; }
+
+    /* ── Main area ───────────────────────────────────────────────────── */
+    .main {
+      margin-left: 260px;
+      padding: 36px 32px;
+      min-height: 100vh;
+    }
+
+    /* ── Topbar ──────────────────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .breadcrumb-trail {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .page-title {
+      font-size: 1.55rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 0;
+    }
+
+    /* ── Panels & Cards ──────────────────────────────────────────────── */
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(17, 28, 58, 0.04);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .panel-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── Summary Stats Row ───────────────────────────────────────────── */
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(17, 28, 58, 0.04);
+      height: 100%;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .stat-number {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .stat-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* ── Table ───────────────────────────────────────────────────────── */
+    .table-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(17, 28, 58, 0.04);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .roster-table {
+      width: 100%;
+      margin: 0;
+      border-collapse: collapse;
+    }
+    .roster-table th {
+      background: #f8fafc;
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: var(--muted);
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .roster-table td {
+      padding: 14px 20px;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .roster-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ── Empty State ─────────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 56px 24px;
+      color: var(--muted);
+    }
+    .empty-state i {
+      font-size: 3rem;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .empty-state h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 991px) {
+      .sidebar { position: relative; width: 100%; height: auto; }
+      .main { margin-left: 0; padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════ Sidebar ════════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <a class="brand" href="{{ url_for('main.admin_dashboard') }}">
+    <i class="bi bi-mortarboard-fill"></i> SchoolPortal
+  </a>
+
+  <div class="nav-label">Main Menu</div>
+  <a class="nav-link" href="{{ url_for('main.admin_dashboard') }}">
+    <i class="bi bi-grid-1x2"></i> Overview
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_students') }}">
+    <i class="bi bi-people"></i> Students
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_teachers') }}">
+    <i class="bi bi-person-badge"></i> Teachers
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_classes') }}">
+    <i class="bi bi-building"></i> Classes &amp; Subjects
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_attendance') }}">
+    <i class="bi bi-calendar-check"></i> Daily Attendance
+  </a>
+  <a class="nav-link active" href="{{ url_for('main.class_attendance_report') }}">
+    <i class="bi bi-calendar2-range"></i> Class Attendance
+  </a>
+  <a class="nav-link" href="{{ url_for('main.student_attendance_report') }}">
+    <i class="bi bi-person-check"></i> Student Attendance
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_exams') }}">
+    <i class="bi bi-journal-check"></i> Exams &amp; Results
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_student_results_report') }}">
+    <i class="bi bi-person-lines-fill"></i> Student Results
+  </a>
+  <a class="nav-link" href="{{ url_for('main.admin_fees') }}">
+    <i class="bi bi-wallet2"></i> Fee Management
+  </a>
+
+  <div class="sidebar-spacer"></div>
+  <div class="sidebar-bottom">
+    <a class="nav-link" href="{{ url_for('main.home') }}">
+      <i class="bi bi-globe"></i> Public Website
+    </a>
+    <a class="nav-link" href="{{ url_for('main.logout') }}">
+      <i class="bi bi-box-arrow-left"></i> Sign Out
+    </a>
+  </div>
+</aside>
+
+<!-- ═══════ Main ════════════════════════════════════════════════════════ -->
+<main class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <div class="breadcrumb-trail">
+        <a href="{{ url_for('main.admin_dashboard') }}" class="text-decoration-none text-secondary">Overview</a>
+        &rsaquo;
+        <a href="{{ url_for('main.admin_attendance') }}" class="text-decoration-none text-secondary">Attendance</a>
+        &rsaquo; Monthly Class Report
+      </div>
+      <h1 class="page-title">Class Attendance Report</h1>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+      <a href="{{ url_for('main.admin_attendance') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-calendar3 me-1"></i> Daily Attendance
+      </a>
+      {% if classroom and class_id %}
+      <a href="{{ url_for('main.admin_class_attendance_pdf', class_id=class_id, month=month) }}"
+         class="btn btn-danger d-inline-flex align-items-center gap-2">
+        <i class="bi bi-file-earmark-pdf-fill"></i> Download Class PDF
+      </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Flashed Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  {% if month_error %}
+    <div class="alert alert-warning">{{ month_error }}</div>
+  {% endif %}
+
+  <!-- Filter & Selection Panel -->
+  <div class="panel">
+    <h2 class="panel-title">
+      <i class="bi bi-funnel text-primary"></i> Select Class &amp; Month
+    </h2>
+    <form method="GET" action="{{ url_for('main.class_attendance_report') }}" class="row g-3 align-items-end">
+      <div class="col-md-5">
+        <label for="class_select" class="form-label fw-medium text-secondary small">Classroom</label>
+        <select name="class_id" id="class_select" class="form-select" required>
+          <option value="">-- Choose Class --</option>
+          {% for c in classrooms %}
+            <option value="{{ c.id }}" {% if class_id == c.id %}selected{% endif %}>
+              {{ c.name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-4">
+        <label for="month_input" class="form-label fw-medium text-secondary small">Month</label>
+        <input type="month" name="month" id="month_input" class="form-control" value="{{ month }}" required>
+      </div>
+
+      <div class="col-md-3">
+        <button type="submit" class="btn btn-primary w-100 d-inline-flex align-items-center justify-content-center gap-1">
+          <i class="bi bi-search"></i> View Class Report
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Content State -->
+  {% if not class_id %}
+    <div class="panel empty-state">
+      <i class="bi bi-calendar2-range"></i>
+      <h3>Select a Class to View Monthly Summary</h3>
+      <p class="mb-0">Choose a classroom and target month above to inspect aggregate attendance records, session totals, and student percentages.</p>
+    </div>
+
+  {% elif classroom %}
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Enrolled Students</div>
+          <div class="stat-number">{{ class_summary.get('total_students', 0) }}</div>
+          <div class="stat-sub">Active in {{ classroom.name }}</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Recorded Sessions</div>
+          <div class="stat-number">{{ class_summary.get('total_sessions', 0) }}</div>
+          <div class="stat-sub">Class dates in {{ month }}</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Students with Records</div>
+          <div class="stat-number">{{ class_summary.get('students_with_records', 0) }}</div>
+          <div class="stat-sub">With at least 1 attendance mark</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+          <div class="stat-label">Class Attendance Rate</div>
+          <div class="stat-number text-primary">
+            {% if class_summary.get('class_attendance_percentage') is not none %}
+              {{ "%.1f"|format(class_summary.get('class_attendance_percentage')) }}%
+            {% else %}
+              &mdash;
+            {% endif %}
+          </div>
+          <div class="stat-sub">Average positive attendance</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance Formula Note -->
+    <div class="alert alert-light border small text-muted mb-4">
+      <i class="bi bi-info-circle me-1 text-primary"></i>
+      <strong>Calculation standard:</strong> Attendance percentage is calculated strictly from recorded attendance days:
+      <code>(Present + Late) / total recorded days &times; 100</code>. Unrecorded calendar days are not counted as absent.
+    </div>
+
+    <!-- Student Attendance Roster Table -->
+    <div class="table-card">
+      <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+        <h3 class="h6 mb-0 text-navy fw-bold">
+          <i class="bi bi-people-fill me-2 text-primary"></i>{{ classroom.name }} Student Attendance Roster ({{ month }})
+        </h3>
+        <span class="badge bg-light text-secondary border">{{ students|length }} students</span>
+      </div>
+
+      {% if students %}
+        <div class="table-responsive">
+          <table class="roster-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Roll No</th>
+                <th class="text-center text-success">Present</th>
+                <th class="text-center text-danger">Absent</th>
+                <th class="text-center text-warning">Late</th>
+                <th class="text-center">Recorded Days</th>
+                <th class="text-center">Attendance Rate</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for st in students %}
+                {% set summ = student_summaries.get(st.id, {'Present': 0, 'Absent': 0, 'Late': 0, 'total_days': 0, 'percentage': None}) %}
+                <tr>
+                  <td class="fw-semibold text-navy">{{ st.full_name }}</td>
+                  <td>#{{ st.roll_number }}</td>
+                  <td class="text-center font-monospace">{{ summ['Present'] }}</td>
+                  <td class="text-center font-monospace">{{ summ['Absent'] }}</td>
+                  <td class="text-center font-monospace">{{ summ['Late'] }}</td>
+                  <td class="text-center font-monospace">{{ summ['total_days'] }}</td>
+                  <td class="text-center">
+                    {% if summ['percentage'] is not none %}
+                      <span class="fw-bold text-navy">{{ "%.1f"|format(summ['percentage']) }}%</span>
+                    {% else %}
+                      <span class="text-muted">&mdash;</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    <a href="{{ url_for('main.student_attendance_report', class_id=classroom.id, student_id=st.id, month=month) }}"
+                       class="btn btn-sm btn-outline-primary">
+                      <i class="bi bi-person-lines-fill me-1"></i>Individual Report
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="p-4 text-center text-muted">
+          No students are currently enrolled in this classroom.
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

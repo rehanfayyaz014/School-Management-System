@@ -1,0 +1,701 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details | School Management System</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+          rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #111c3a;
+            --navy-light: #1b2b50;
+            --blue: #4568f5;
+            --blue-hover: #3454df;
+            --muted: #7b8499;
+            --canvas: #f5f7fc;
+            --text: #202b45;
+            --border: #edf0f7;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--canvas);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 1500px;
+            margin: auto;
+            padding: 32px 42px;
+        }
+
+        /* Header */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb-text {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 7px;
+        }
+
+        .breadcrumb-text i {
+            margin: 0 7px;
+        }
+
+        .page-title {
+            color: var(--navy);
+            font-size: 29px;
+            font-weight: 750;
+            letter-spacing: -0.7px;
+            margin: 0;
+        }
+
+        .page-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            margin: 7px 0 0;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-back,
+        .btn-edit {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 43px;
+            padding: 10px 17px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 650;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .btn-back {
+            background: var(--white);
+            border: 1px solid #e2e7f1;
+            color: var(--navy);
+        }
+
+        .btn-back:hover {
+            background: #edf1fb;
+            color: var(--navy);
+        }
+
+        .btn-edit {
+            background: var(--blue);
+            border: 1px solid var(--blue);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: var(--blue-hover);
+            border-color: var(--blue-hover);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Student profile banner */
+        .profile-banner {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(120deg, var(--navy), #1c315e);
+            border-radius: 19px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 28px rgba(17, 28, 58, 0.10);
+        }
+
+        .profile-banner::after {
+            content: "";
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            right: -75px;
+            top: -135px;
+            border: 1px solid rgba(255, 255, 255, 0.10);
+            border-radius: 50%;
+            box-shadow: 0 0 0 35px rgba(255,255,255,0.025),
+                        0 0 0 70px rgba(255,255,255,0.02);
+            pointer-events: none;
+        }
+
+        .profile-main {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        .avatar {
+            width: 86px;
+            height: 86px;
+            min-width: 86px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 22px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: #fff;
+            font-size: 32px;
+        }
+
+        .profile-name {
+            color: #fff;
+            font-size: 25px;
+            font-weight: 750;
+            margin: 0 0 9px;
+            overflow-wrap: anywhere;
+        }
+
+        .profile-meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px 20px;
+            color: #d1d9ed;
+            font-size: 13px;
+        }
+
+        .profile-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            padding: 7px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 650;
+            margin-top: 13px;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            background: #65e6a1;
+            border-radius: 50%;
+        }
+
+        /* Main content */
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.65fr) minmax(260px, 0.85fr);
+            gap: 24px;
+            align-items: start;
+        }
+
+        .section-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(26, 43, 83, 0.035);
+            margin-bottom: 22px;
+        }
+
+        .section-heading {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding-bottom: 19px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #f0f2f8;
+        }
+
+        .section-icon {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: #edf1ff;
+            color: var(--blue);
+            font-size: 19px;
+        }
+
+        .section-heading h5 {
+            color: var(--navy);
+            font-size: 16px;
+            font-weight: 750;
+            margin: 0 0 4px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            column-gap: 28px;
+        }
+
+        .info-item {
+            padding: 19px 0;
+            border-bottom: 1px solid #f0f2f8;
+            min-width: 0;
+        }
+
+        .info-item:nth-last-child(-n+2) {
+            border-bottom: none;
+        }
+
+        .info-label {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 550;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            display: block;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 650;
+            overflow-wrap: anywhere;
+        }
+
+        .empty-value {
+            color: #a5adbd;
+            font-weight: 450;
+        }
+
+        /* Right-side information panels */
+        .id-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 17px;
+            padding: 25px;
+            margin-bottom: 22px;
+            box-shadow: 0 5px 20px rgba(26, 43, 83, 0.035);
+        }
+
+        .id-label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .id-number {
+            color: var(--navy);
+            font-size: 26px;
+            font-weight: 800;
+            overflow-wrap: anywhere;
+        }
+
+        .id-description {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+            margin-top: 10px;
+        }
+
+        .id-icon {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #edf1ff;
+            color: var(--blue);
+            border-radius: 13px;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .record-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 0;
+            border-bottom: 1px solid #f0f2f8;
+            font-size: 13px;
+        }
+
+        .record-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .record-label {
+            color: var(--muted);
+        }
+
+        .record-value {
+            color: var(--text);
+            font-weight: 650;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .record-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: #eaf9f0;
+            color: #16834b;
+            font-size: 11px;
+            font-weight: 750;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: #9aa3b4;
+            font-size: 12px;
+            padding: 8px 0 0;
+        }
+
+        @media (max-width: 900px) {
+            .page-wrapper {
+                padding: 25px 22px;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .right-column {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 18px;
+            }
+
+            .right-column .id-card {
+                margin-bottom: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .page-wrapper {
+                padding: 20px 14px;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                margin-bottom: 20px;
+            }
+
+            .page-title {
+                font-size: 24px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions a {
+                flex: 1;
+            }
+
+            .profile-banner {
+                padding: 22px 18px;
+                border-radius: 15px;
+            }
+
+            .profile-main {
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .avatar {
+                width: 62px;
+                height: 62px;
+                min-width: 62px;
+                border-radius: 16px;
+                font-size: 25px;
+            }
+
+            .profile-name {
+                font-size: 20px;
+            }
+
+            .profile-meta {
+                gap: 8px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .section-card,
+            .id-card {
+                padding: 19px 16px;
+                border-radius: 14px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .info-item:nth-last-child(-n+2) {
+                border-bottom: 1px solid #f0f2f8;
+            }
+
+            .info-item:last-child {
+                border-bottom: none;
+            }
+
+            .right-column {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page-wrapper">
+
+        <!-- Page header -->
+        <header class="topbar">
+            <div>
+                <div class="breadcrumb-text">
+                    School Management
+                    <i class="bi bi-chevron-right"></i>
+                    Students
+                    <i class="bi bi-chevron-right"></i>
+                    Student Details
+                </div>
+
+                <h1 class="page-title">Student Details</h1>
+                <p class="page-subtitle">
+                    View and manage this student's information.
+                </p>
+            </div>
+
+            <div class="header-actions">
+                <a href="{{ url_for('main.admin_students') }}" class="btn-back">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Students
+                </a>
+
+                <a href="{{ url_for('main.edit_student', student_id=student.id) }}"
+                   class="btn-edit">
+                    <i class="bi bi-pencil-square"></i>
+                    Edit Student
+                </a>
+            </div>
+        </header>
+
+        <!-- Student profile banner -->
+        <section class="profile-banner">
+            <div class="profile-main">
+                <div class="avatar">
+                    <i class="bi bi-person-fill"></i>
+                </div>
+
+                <div>
+                    <h2 class="profile-name">
+                        {{ student.full_name or "Student Name" }}
+                    </h2>
+
+                    <div class="profile-meta">
+                        <span>
+                            <i class="bi bi-person-badge"></i>
+                            Roll No:
+                            {{ student.roll_number or "Not assigned" }}
+                        </span>
+
+                        {% if student.classroom %}
+                        <span>
+                            <i class="bi bi-mortarboard"></i>
+                            {{ student.classroom.name }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="status-badge">
+                        <span class="status-dot"></span>
+                        Student Record
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="content-grid">
+
+            <!-- Main information -->
+            <div class="left-column">
+                <section class="section-card">
+                    <div class="section-heading">
+                        <div class="section-icon">
+                            <i class="bi bi-person-vcard"></i>
+                        </div>
+                        <div>
+                            <h5>Personal Information</h5>
+                            <p>Student's basic personal details</p>
+                        </div>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Full Name</span>
+                            <span class="info-value">
+                                {{ student.full_name or "Not provided" }}
+                            </span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Roll Number</span>
+                            <span class="info-value">
+                                {{ student.roll_number or "Not assigned" }}
+                            </span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Email Address</span>
+                            <span class="info-value">
+                                {{ student.email or "Not provided" }}
+                            </span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Phone Number</span>
+                            <span class="info-value">
+                                {{ student.phone or "Not provided" }}
+                            </span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Date of Birth</span>
+                            <span class="info-value">
+                                {% if student.date_of_birth %}
+                                    {{ student.date_of_birth.strftime('%d %b, %Y') }}
+                                {% else %}
+                                    Not provided
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Gender</span>
+                            <span class="info-value">
+                                {{ student.gender or "Not provided" }}
+                            </span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Address</span>
+                            <span class="info-value">
+                                {{ student.address or "Not provided" }}
+                            </span>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-label">Class</span>
+                            <span class="info-value">
+                                {% if student.classroom %}
+                                    {{ student.classroom.name }}
+                                {% else %}
+                                    Not assigned
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Side information cards, not a navigation sidebar -->
+            <div class="right-column">
+                <section class="id-card">
+                    <div class="id-icon">
+                        <i class="bi bi-fingerprint"></i>
+                    </div>
+
+                    <div class="id-label">STUDENT IDENTIFICATION</div>
+
+                    <div class="id-number">
+                        {{ student.roll_number or "Not assigned" }}
+                    </div>
+
+                    <p class="id-description">
+                        Use this roll number when identifying this student
+                        in school records.
+                    </p>
+                </section>
+
+                <section class="id-card">
+                    <div class="id-icon">
+                        <i class="bi bi-clipboard2-check"></i>
+                    </div>
+
+                    <div class="id-label">RECORD OVERVIEW</div>
+
+                    <div class="record-row">
+                        <span class="record-label">Student ID</span>
+                        <span class="record-value">#{{ student.id }}</span>
+                    </div>
+
+                    <div class="record-row">
+                        <span class="record-label">Class Assigned</span>
+                        <span class="record-value">
+                            {% if student.classroom %}
+                                {{ student.classroom.name }}
+                            {% else %}
+                                No class
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="record-row">
+                        <span class="record-label">Record</span>
+                        <span class="record-status">
+                            <i class="bi bi-check-circle-fill"></i>
+                            Available
+                        </span>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <footer class="footer-note">
+            School Management System
+            <span class="mx-1">•</span>
+            Student Profile
+        </footer>
+
+    </main>
+</body>
+</html>

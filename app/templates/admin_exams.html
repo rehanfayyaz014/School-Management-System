@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Exams & Results | SchoolPortal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background: #f6f8fb; color: #243044; }
+    .sidebar { min-height: 100vh; background: #17243a; color: #fff; padding: 24px 16px; }
+    .brand { color: #fff; text-decoration: none; font-weight: 700; font-size: 1.2rem; display: block; margin-bottom: 34px; }
+    .side-link { color: #c7d0df; text-decoration: none; display: block; padding: 10px 12px; border-radius: 8px; margin: 4px 0; }
+    .side-link:hover, .side-link.active { color: #fff; background: #2c405f; }
+    .main { padding: 30px; }
+    .card { border: 0; box-shadow: 0 8px 24px rgba(34,51,84,.07); }
+    @media (min-width: 768px) { .sidebar { position: fixed; width: 240px; } .main { margin-left: 240px; } }
+  </style>
+</head>
+<body>
+<div class="container-fluid">
+  <div class="row">
+    <aside class="col-md-3 col-lg-2 sidebar">
+      <a class="brand" href="{{ url_for('main.admin_dashboard') }}"><i class="bi bi-mortarboard-fill me-2"></i>SchoolPortal</a>
+      <a class="side-link" href="{{ url_for('main.admin_dashboard') }}">Overview</a>
+      <a class="side-link active" href="{{ url_for('main.admin_exams') }}"><i class="bi bi-clipboard-data me-2"></i>Exams & Results</a>
+      <a class="side-link" href="{{ url_for('main.admin_student_results_report') }}"><i class="bi bi-person-lines-fill me-2"></i>Student Results</a>
+      <a class="side-link" href="{{ url_for('main.admin_attendance') }}">Attendance</a>
+      <a class="side-link" href="{{ url_for('main.logout') }}">Sign Out</a>
+    </aside>
+
+    <main class="col-md-9 col-lg-10 main">
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+          <div class="text-uppercase text-secondary small">School Management</div>
+          <h1 class="h3 mb-0">Exams &amp; Results</h1>
+        </div>
+        <div>
+          <a href="{{ url_for('main.admin_student_results_report') }}" class="btn btn-outline-primary">
+            <i class="bi bi-person-lines-fill me-1"></i> Individual Student Results
+          </a>
+        </div>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <div class="card p-4 mb-4">
+        <h2 class="h5">Create exam</h2>
+        <form method="post" class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Exam name</label>
+            <input name="name" class="form-control" required maxlength="120">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Class</label>
+            <select name="class_id" class="form-select" required>
+              <option value="">Select class</option>
+              {% for item in classrooms %}
+                <option value="{{ item.id }}">{{ item.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Date</label>
+            <input type="date" name="exam_date" class="form-control" required>
+          </div>
+          <div class="col-md-2">
+            <label class="form-label">Total marks</label>
+            <input type="number" name="total_marks" class="form-control" min="1" value="100" required>
+          </div>
+          <div class="col-md-1 d-flex align-items-end">
+            <button class="btn btn-primary w-100">Add</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card p-4">
+        <h2 class="h5 mb-3">Exams</h2>
+        {% if exams %}
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>Exam</th>
+                  <th>Class</th>
+                  <th>Date</th>
+                  <th>Marks</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for exam in exams %}
+                  <tr>
+                    <td>{{ exam.name }}</td>
+                    <td>{{ exam.classroom.name }}</td>
+                    <td>{{ exam.exam_date }}</td>
+                    <td>{{ exam.total_marks }}</td>
+                    <td>
+                      <span class="badge text-bg-{{ 'success' if exam.is_published else 'secondary' }}">
+                        {{ 'Published' if exam.is_published else 'Draft' }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <a href="{{ url_for('main.admin_exam_results', exam_id=exam.id) }}" class="btn btn-sm btn-primary">
+                          <i class="bi bi-table me-1"></i>Results
+                        </a>
+                        <form method="post" action="{{ url_for('main.publish_exam', exam_id=exam.id) }}" class="d-inline m-0">
+                          <button class="btn btn-sm btn-outline-secondary">
+                            {{ 'Unpublish' if exam.is_published else 'Publish' }}
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-center text-secondary py-4">No exams created yet.</div>
+        {% endif %}
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

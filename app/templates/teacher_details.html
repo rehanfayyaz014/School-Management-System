@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Teacher Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #111c3a;
+            --blue: #4568f5;
+            --muted: #7b8499;
+            --canvas: #f5f7fc;
+            --border: #edf0f7;
+        }
+
+        body {
+            background: var(--canvas);
+            color: #202b45;
+            font-family: Inter, "Segoe UI", sans-serif;
+        }
+
+        .page { max-width: 950px; padding: 30px 18px; margin: auto; }
+        .banner {
+            background: linear-gradient(120deg, #111c3a, #1c315e);
+            color: white;
+            border-radius: 17px;
+            padding: 28px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 22px;
+        }
+
+        .muted { color: var(--muted); font-size: 13px; }
+        .label { color: var(--muted); font-size: 12px; margin-bottom: 7px; }
+        .value { font-size: 15px; font-weight: 650; overflow-wrap: anywhere; }
+        .btn-primary { background: var(--blue); border-color: var(--blue); }
+
+        .detail {
+            padding: 17px 0;
+            border-bottom: 1px solid #f0f2f8;
+        }
+
+        .detail:last-child { border-bottom: 0; }
+    </style>
+</head>
+<body>
+<main class="page">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+        <div>
+            <h2 style="color: var(--navy); font-weight: 750;">Teacher Details</h2>
+            <p class="muted mb-0">View the teacher's profile information.</p>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('main.admin_teachers') }}"
+               class="btn btn-light border">← Back</a>
+
+            <a href="{{ url_for('main.edit_teacher', teacher_id=teacher.id) }}"
+               class="btn btn-primary">Edit Teacher</a>
+        </div>
+    </div>
+
+    <section class="banner">
+        <div class="d-flex align-items-center gap-3">
+            <div class="rounded-3 d-flex align-items-center justify-content-center"
+                 style="width:65px;height:65px;background:rgba(255,255,255,.12);font-size:28px;">
+                <i class="bi bi-person-badge"></i>
+            </div>
+
+            <div>
+                <h3 class="mb-2">{{ teacher.full_name }}</h3>
+                <div style="color:#d1d9ed;font-size:14px;">
+                    Teacher ID: #{{ teacher.id }}
+                </div>
+                <span class="badge mt-2 {% if teacher.is_active %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+                    {{ "Active" if teacher.is_active else "Inactive" }}
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h5 style="color:var(--navy);font-weight:750;">Personal Information</h5>
+        <p class="muted">Teacher's saved details</p>
+
+        <div class="row">
+            <div class="col-md-6 detail">
+                <div class="label">Full Name</div>
+                <div class="value">{{ teacher.full_name }}</div>
+            </div>
+
+            <div class="col-md-6 detail">
+                <div class="label">Email</div>
+                <div class="value">{{ teacher.email or "Not provided" }}</div>
+            </div>
+
+            <div class="col-md-6 detail">
+                <div class="label">Login Account</div>
+                <div class="value">{{ teacher.user.username if teacher.user else "Not linked" }}</div>
+            </div>
+
+            <div class="col-md-6 detail">
+                <div class="label">Phone</div>
+                <div class="value">{{ teacher.phone or "Not provided" }}</div>
+            </div>
+
+            <div class="col-md-6 detail">
+                <div class="label">Gender</div>
+                <div class="value">{{ teacher.gender or "Not provided" }}</div>
+            </div>
+
+            <div class="col-md-6 detail">
+                <div class="label">Qualification</div>
+                <div class="value">{{ teacher.qualification or "Not provided" }}</div>
+            </div>
+
+            <div class="col-md-6 detail">
+                <div class="label">Record Created</div>
+                <div class="value">
+                    {{ teacher.created_at.strftime('%d %b %Y') if teacher.created_at else "Not available" }}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h5 style="color:var(--navy);font-weight:750;">Teaching Assignments</h5>
+        <p class="muted">Classes where this teacher is class teacher or teaches a subject.</p>
+
+        <div class="row">
+            <div class="col-md-6 detail">
+                <div class="label">Class Teacher Of</div>
+                <div class="value">
+                    {% if teacher.classrooms_as_class_teacher %}
+                        {% for classroom in teacher.classrooms_as_class_teacher %}
+                            <span class="badge text-bg-light me-1">{{ classroom.name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        Not assigned
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="col-md-6 detail">
+                <div class="label">Subjects Taught</div>
+                <div class="value">
+                    {% if teacher.subject_assignments %}
+                        {% for assignment in teacher.subject_assignments %}
+                            <span class="badge text-bg-light me-1">{{ assignment.subject.name }} — {{ assignment.classroom.name }}</span>
+                        {% endfor %}
+                    {% else %}
+                        Not assigned
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</body>
+</html>

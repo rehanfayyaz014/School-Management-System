@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Management | SchoolPortal</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --navy: #111c3a;
+            --blue: #4568f5;
+            --muted: #7b8499;
+            --canvas: #f5f7fc;
+            --text: #202b45;
+            --border: #edf0f7;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--canvas);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", sans-serif;
+        }
+
+        .page {
+            max-width: 1500px;
+            margin: auto;
+            padding: 32px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 28px;
+        }
+
+        .heading {
+            color: var(--navy);
+            font-size: 27px;
+            font-weight: 750;
+            margin-bottom: 6px;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .primary-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            background: var(--blue);
+            color: white;
+            border: 1px solid var(--blue);
+            border-radius: 9px;
+            padding: 11px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .primary-btn:hover {
+            background: #3454df;
+            border-color: #3454df;
+            color: white;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            background: white;
+            color: var(--navy);
+            border: 1px solid #e1e6f0;
+            border-radius: 9px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .back-btn:hover {
+            background: #f0f3fb;
+            color: var(--navy);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card,
+        .content-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            box-shadow: 0 4px 18px rgba(20, 35, 75, 0.035);
+        }
+
+        .stat-card {
+            padding: 22px;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .stat-value {
+            color: var(--navy);
+            font-size: 28px;
+            font-weight: 750;
+        }
+
+        .stat-icon {
+            width: 43px;
+            height: 43px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            background: #edf1ff;
+            color: var(--blue);
+        }
+
+        .stat-icon.active {
+            background: #e5f8ef;
+            color: #168452;
+        }
+
+        .stat-icon.inactive {
+            background: #fff0e9;
+            color: #c45b32;
+        }
+
+        .content-card {
+            overflow: hidden;
+        }
+
+        .card-heading {
+            padding: 22px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-heading h2 {
+            color: var(--navy);
+            font-size: 17px;
+            font-weight: 700;
+            margin: 0 0 5px;
+        }
+
+        .card-heading p {
+            color: var(--muted);
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-control {
+            max-width: 360px;
+            min-width: 180px;
+            border: 1px solid #e3e8f2;
+            border-radius: 9px;
+            padding: 10px 12px;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(69, 104, 245, 0.10);
+        }
+
+        .reset-btn {
+            padding: 10px 14px;
+            border: 1px solid #e1e6f0;
+            border-radius: 9px;
+            background: white;
+            color: var(--navy);
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .reset-btn:hover {
+            background: #f5f7fc;
+        }
+
+        .table-responsive {
+            padding: 0 20px 12px;
+        }
+
+        .table {
+            vertical-align: middle;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+            padding: 17px 12px;
+            white-space: nowrap;
+        }
+
+        .table tbody td {
+            padding: 16px 12px;
+            font-size: 13px;
+            border-color: #f0f2f8;
+        }
+
+        .teacher-info {
+            display: flex;
+            align-items: center;
+            min-width: 180px;
+        }
+
+        .teacher-icon {
+            width: 40px;
+            height: 40px;
+            flex-shrink: 0;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            background: #edf1ff;
+            color: var(--blue);
+            margin-right: 10px;
+            font-size: 19px;
+        }
+
+        .teacher-name {
+            color: #26324b;
+            font-weight: 650;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background: #e5f8ef;
+            color: #168452;
+        }
+
+        .status-inactive {
+            background: #fff0e9;
+            color: #c45b32;
+        }
+
+        .action-link {
+            width: 35px;
+            height: 35px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e5e9f2;
+            border-radius: 8px;
+            background: #f7f8fc;
+            color: var(--navy);
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .action-link:hover {
+            background: #e9edfa;
+        }
+
+        .delete-button {
+            color: #cf3e48;
+            border-color: #ffdede;
+            background: #fff5f5;
+        }
+
+        .delete-button:hover {
+            background: #cf3e48;
+            color: white;
+            border-color: #cf3e48;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .action-buttons form {
+            margin: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 55px 20px !important;
+            color: var(--muted);
+        }
+
+        .empty-state i {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 35px;
+            color: #a3afd0;
+        }
+
+        @media (max-width: 900px) {
+            .page {
+                padding: 25px 20px;
+            }
+
+            .stats {
+                gap: 12px;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .page {
+                padding: 20px 12px;
+            }
+
+            .page-header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .heading {
+                font-size: 23px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .header-actions a {
+                flex: 1;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                padding: 18px;
+            }
+
+            .card-heading {
+                padding: 18px;
+            }
+
+            .search-form {
+                padding: 15px;
+            }
+
+            .search-form .form-control {
+                max-width: none;
+                width: 100%;
+            }
+
+            .table-responsive {
+                padding: 0 10px 10px;
+            }
+
+            .table tbody td {
+                padding: 14px 10px;
+            }
+        }
+        
+        .sidebar {
+            width: 258px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background: var(--navy);
+            color: white;
+            padding: 25px 16px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .brand {
+            font-size: 21px;
+            font-weight: 700;
+            padding: 0 12px 30px;
+        }
+
+        .brand i {
+            color: #8195ff;
+            margin-right: 8px;
+        }
+
+        .nav-label {
+            color: #8792b0;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            padding: 0 12px;
+            margin-bottom: 12px;
+        }
+
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            margin-bottom: 5px;
+            border-radius: 9px;
+            text-decoration: none;
+            color: #c2cbe0;
+            font-size: 14px;
+        }
+
+        .sidebar a i {
+            font-size: 17px;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: #26365d;
+            color: white;
+        }
+
+        .sidebar a.active {
+            border-left: 3px solid #8195ff;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        .page {
+            max-width: none;
+            margin-left: 258px;
+            padding: 35px;
+        }
+
+        @media (max-width: 900px) {
+            .sidebar {
+                width: 210px;
+            }
+
+            .page {
+                margin-left: 210px;
+                padding: 25px 20px;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .sidebar {
+                width: 65px;
+                padding: 20px 8px;
+            }
+
+            .brand {
+                text-align: center;
+                padding: 5px 0 25px;
+            }
+
+            .brand i {
+                margin: 0;
+            }
+
+            .brand span,
+            .nav-label,
+            .sidebar a span {
+                display: none;
+            }
+
+            .sidebar a {
+                justify-content: center;
+                padding: 13px 5px;
+            }
+
+            .sidebar a i {
+                font-size: 20px;
+            }
+
+            .page {
+                margin-left: 65px;
+                padding: 22px 12px;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+    <aside class="sidebar">
+    <div class="brand">
+        <i class="bi bi-mortarboard-fill"></i>
+        <span>SchoolPortal</span>
+    </div>
+
+    <div class="nav-label">MAIN MENU</div>
+
+    <a href="{{ url_for('main.admin_dashboard') }}">
+        <i class="bi bi-grid-1x2"></i>
+        <span>Overview</span>
+    </a>
+
+    <a href="{{ url_for('main.admin_students') }}">
+        <i class="bi bi-people"></i>
+        <span>Students</span>
+    </a>
+
+    <a href="{{ url_for('main.admin_teachers') }}" class="active">
+        <i class="bi bi-person-badge"></i>
+        <span>Teachers</span>
+    </a>
+
+    <a href="{{ url_for('main.admin_classes') }}">
+        <i class="bi bi-building"></i>
+        <span>Classes &amp; Subjects</span>
+    </a>
+
+    <a href="{{ url_for('main.admin_attendance') }}">
+        <i class="bi bi-calendar-check"></i>
+        <span>Attendance</span>
+    </a>
+
+    <a href="{{ url_for('main.admin_exams') }}">
+        <i class="bi bi-journal-check"></i>
+        <span>Exams &amp; Results</span>
+    </a>
+
+    <a href="{{ url_for('main.admin_fees') }}">
+        <i class="bi bi-wallet2"></i>
+        <span>Fee Management</span>
+    </a>
+
+    <div class="sidebar-bottom">
+        <a href="{{ url_for('main.home') }}">
+            <i class="bi bi-globe"></i>
+            <span>Public Website</span>
+        </a>
+
+        <a href="{{ url_for('main.logout') }}">
+            <i class="bi bi-box-arrow-left"></i>
+            <span>Sign Out</span>
+        </a>
+    </div>
+</aside>
+<main class="page">
+
+    <header class="page-header">
+        <div>
+            <h1 class="heading">Teacher Management</h1>
+            <p class="muted mb-0">
+                View and manage your school's teacher records.
+            </p>
+        </div>
+
+        <div class="header-actions">
+
+            <a href="{{ url_for('main.add_teacher') }}" class="primary-btn">
+                <i class="bi bi-plus-lg"></i>
+                Add Teacher
+            </a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"
+                        aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- Teacher Statistics -->
+    <section class="stats">
+
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Total Teachers</div>
+                    <div class="stat-value">{{ total_teachers }}</div>
+                </div>
+                <div class="stat-icon">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Active Teachers</div>
+                    <div class="stat-value">{{ active_teachers }}</div>
+                </div>
+                <div class="stat-icon active">
+                    <i class="bi bi-person-check"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="stat-label">Inactive Teachers</div>
+                    <div class="stat-value">{{ inactive_teachers }}</div>
+                </div>
+                <div class="stat-icon inactive">
+                    <i class="bi bi-person-dash"></i>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- Teachers Table -->
+    <section class="content-card">
+
+        <div class="card-heading">
+            <h2>All Teachers</h2>
+            <p>Teacher records currently stored in the database.</p>
+        </div>
+
+       
+<form method="GET" action="{{ url_for('main.admin_teachers') }}"
+      class="d-flex flex-wrap gap-2 mb-4">
+
+    <input
+        type="text"
+        name="search"
+        class="form-control"
+        placeholder="Search by name, email or phone..."
+        value="{{ search }}"
+        style="max-width: 320px;"
+    >
+
+    <select name="status" class="form-select" style="max-width: 180px;">
+        <option value="all" {% if status == 'all' %}selected{% endif %}>
+            All Teachers
+        </option>
+        <option value="active" {% if status == 'active' %}selected{% endif %}>
+            Active Teachers
+        </option>
+        <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>
+            Inactive Teachers
+        </option>
+    </select>
+
+    <button type="submit" class="btn btn-primary">Search</button>
+
+    <a href="{{ url_for('main.admin_teachers') }}"
+       class="btn btn-outline-secondary">Reset</a>
+</form>
+
+
+        <div class="d-flex justify-content-between align-items-center px-4 py-3">
+            <strong style="color: var(--navy); font-size: 14px;">
+                Teacher Records
+            </strong>
+
+            <span class="muted">
+                {{ teachers|length }} result(s)
+            </span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Teacher</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for teacher in teachers %}
+                    <tr>
+                        <td>{{ teacher.id }}</td>
+
+                        <td>
+                            <div class="teacher-info">
+                                <span class="teacher-icon">
+                                    <i class="bi bi-person-badge"></i>
+                                </span>
+                                <span class="teacher-name">
+                                    {{ teacher.full_name }}
+                                </span>
+                            </div>
+                        </td>
+
+                        <td>{{ teacher.email or 'Not provided' }}</td>
+
+                        <td>{{ teacher.phone or 'Not provided' }}</td>
+
+                        <td>
+                            {% if teacher.is_active %}
+                                <span class="status status-active">Active</span>
+                            {% else %}
+                                <span class="status status-inactive">Inactive</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="action-buttons">
+
+                                <a
+                                    href="{{ url_for('main.teacher_details', teacher_id=teacher.id) }}"
+                                    class="action-link"
+                                    title="View teacher"
+                                    aria-label="View teacher"
+                                >
+                                    <i class="bi bi-eye"></i>
+                                </a>
+
+                                <a
+                                    href="{{ url_for('main.edit_teacher', teacher_id=teacher.id) }}"
+                                    class="action-link"
+                                    title="Edit teacher"
+                                    aria-label="Edit teacher"
+                                >
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('main.delete_teacher', teacher_id=teacher.id) }}"
+                                    onsubmit="return confirm('Permanently delete this teacher? This action cannot be undone.');"
+                                >
+                                    <button
+                                        type="submit"
+                                        class="action-link delete-button"
+                                        title="Delete teacher"
+                                        aria-label="Delete teacher"
+                                    >
+                                        <i class="bi bi-trash3"></i>
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <i class="bi bi-people"></i>
+                            <strong class="d-block mb-2">No teachers found</strong>
+                            No teacher records match your search.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </section>
+
+    <p class="text-center muted mt-4">
+        School Management System
+    </p>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
